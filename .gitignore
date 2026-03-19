@@ -1,0 +1,12 @@
+# 第三方 skills（由外部管理，不纳入本仓库）
+skills/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/

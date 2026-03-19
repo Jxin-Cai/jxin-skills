@@ -1,0 +1,42 @@
+{
+  "session_id": "93721f6b-efb3-4016-8add-f53bdfbb6a8b-202602060035-tech-article",
+  "timestamp": "2026-02-06T00:35:28.181927",
+  "article_file": "/Users/jxin/Agent/VB-Coding-Demo/docs/Google教育版账号：义父级别的慷慨馈赠.md",
+  "article_title": "Google 教育版账号：义父级别的慷慨馈赠",
+  "article_type": "科普型",
+  "generation_details": {
+    "structure_decisions": "默认黄金五段式",
+    "content_choices": "基于主题分析",
+    "example_selection": "由浅入深",
+    "diagram_rationale": "辅助理解核心概念",
+    "writing_style": "认知台阶+画面感"
+  },
+  "quality_metrics": {
+    "accuracy_score": 0.9,
+    "completeness": 1.0,
+    "structure_completeness": 1.0,
+    "readability": 1.0,
+    "engagement": 0.9,
+    "reading_time_minutes": 13.4,
+    "code_blocks_count": 28,
+    "diagrams_count": 1,
+    "char_count": 5350
+  },
+  "user_feedback": {
+    "explicit_feedback": "",
+    "corrections": [],
+    "satisfaction_score": 8,
+    "modification_count": 2
+  },
+  "generation_effectiveness": {
+    "time_to_completion": 0,
+    "iteration_count": 1,
+    "success_flag": true
+  },
+  "learning_indicators": {
+    "novel_patterns": [],
+    "successful_strategies": [],
+    "failed_approaches": [],
+    "improvement_opportunities": []
+  }
+}
