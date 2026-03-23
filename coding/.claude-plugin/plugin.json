@@ -11,5 +11,6 @@
   "license": "MIT",
   "keywords": ["git", "commit", "review", "branch", "worktree", "critic", "notification", "coding"],
   "agents": [],
+  "commands": ["./commands/"],
   "skills": ["./skills/"]
 }

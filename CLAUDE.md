@@ -22,20 +22,25 @@ jxin-skills/
 ├── coding/                        # 开发工具插件
 │   ├── .claude-plugin/
 │   │   └── plugin.json
+│   ├── commands/                  # slash command 快捷入口
+│   │   ├── commit.md              # /jxin-coding:commit → git-auto-commit-review
+│   │   └── critic.md              # /jxin-coding:critic → claude-code-critic
 │   └── skills/
 │       ├── git-auto-commit-review/
-│       ├── git-branch-guard/
-│       ├── worktree-manager/
-│       ├── claude-code-critic/
-│       └── claude-notify-hook/
+│       └── claude-code-critic/
 └── writing/                       # 创作工具插件
     ├── .claude-plugin/
     │   └── plugin.json
+    ├── commands/                  # slash command 快捷入口
+    │   ├── article.md             # /jxin-writing:article → tech-article-writer
+    │   ├── ppt.md                 # /jxin-writing:ppt → ppt-storyboard
+    │   ├── image.md               # /jxin-writing:image → gemini-image-gen
+    │   ├── publish.md             # /jxin-writing:publish → markdown-publisher
+    │   └── resume.md              # /jxin-writing:resume → resume-craft
     └── skills/
         ├── tech-article-writer/
         ├── ppt-storyboard/
         ├── gemini-image-gen/
-        ├── smart-image-generator/
         ├── markdown-publisher/
         └── resume-craft/
 ```
@@ -44,24 +49,20 @@ jxin-skills/
 
 ### Coding（开发工具）
 
-| 技能 | 用途 |
-|------|------|
-| `git-auto-commit-review` | Git 提交助手，支持快速提交和深度 CR 提交 |
-| `git-branch-guard` | Git 分支管理钩子，强制分支命名和 squash merge |
-| `worktree-manager` | Git worktree 管理，并行开发多功能 |
-| `claude-code-critic` | 项目/Skill 严苛评审 |
-| `claude-notify-hook` | macOS 系统通知配置 |
+| 技能 | 用途 | 命令快捷方式 |
+|------|------|-------------|
+| `git-auto-commit-review` | Git 提交助手，支持快速提交和深度 CR 提交 | `/jxin-coding:commit` |
+| `claude-code-critic` | 项目/Skill 严苛评审 | `/jxin-coding:critic` |
 
 ### Writing（创作工具）
 
-| 技能 | 用途 |
-|------|------|
-| `tech-article-writer` | 技术文章创作，黄金五段式 |
-| `ppt-storyboard` | PPT 叙事分镜设计，三幕式结构 |
-| `gemini-image-gen` | Gemini 图片生成底层能力 |
-| `smart-image-generator` | 智能图片/PPT 生成（集成版） |
-| `markdown-publisher` | Markdown 转富文本 HTML（微信公众号等） |
-| `resume-craft` | 简历优化与 PDF 生成 |
+| 技能 | 用途 | 命令快捷方式 |
+|------|------|-------------|
+| `tech-article-writer` | 技术文章创作，黄金五段式 | `/jxin-writing:article` |
+| `ppt-storyboard` | PPT 叙事分镜设计，三幕式结构 | `/jxin-writing:ppt` |
+| `gemini-image-gen` | Gemini 图片生成底层能力 | `/jxin-writing:image` |
+| `markdown-publisher` | Markdown 转富文本 HTML（微信公众号等） | `/jxin-writing:publish` |
+| `resume-craft` | 简历优化与 PDF 生成 | `/jxin-writing:resume` |
 
 ## 约束
 

@@ -11,5 +11,6 @@
   "license": "MIT",
   "keywords": ["article", "ppt", "storyboard", "image", "resume", "markdown", "publishing", "writing"],
   "agents": [],
+  "commands": ["./commands/"],
   "skills": ["./skills/"]
 }
