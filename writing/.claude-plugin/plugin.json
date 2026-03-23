@@ -1,0 +1,15 @@
+{
+  "name": "jxin-writing",
+  "description": "Creative toolkit: tech article writing, PPT storyboard, image generation, resume crafting, and markdown publishing",
+  "version": "1.0.0",
+  "author": {
+    "name": "jxin",
+    "email": "jxin@thoughtworks.com"
+  },
+  "homepage": "https://github.com/Jxin-Cai/jxin-skills",
+  "repository": "https://github.com/Jxin-Cai/jxin-skills",
+  "license": "MIT",
+  "keywords": ["article", "ppt", "storyboard", "image", "resume", "markdown", "publishing", "writing"],
+  "agents": [],
+  "skills": ["./skills/"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "jxin-coding",
+  "description": "Development toolkit: Git commit review, branch guard, worktree management, code critic, and notification hooks",
+  "version": "1.0.0",
+  "author": {
+    "name": "jxin",
+    "email": "jxin@thoughtworks.com"
+  },
+  "homepage": "https://github.com/Jxin-Cai/jxin-skills",
+  "repository": "https://github.com/Jxin-Cai/jxin-skills",
+  "license": "MIT",
+  "keywords": ["git", "commit", "review", "branch", "worktree", "critic", "notification", "coding"],
+  "agents": [],
+  "skills": ["./skills/"]
+}

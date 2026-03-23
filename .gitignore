@@ -1,6 +1,5 @@
-# 第三方 skills（由外部管理，不纳入本仓库）
-skills/
 
+.claude
 # macOS
 .DS_Store
 

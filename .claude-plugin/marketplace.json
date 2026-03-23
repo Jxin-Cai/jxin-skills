@@ -1,0 +1,34 @@
+{
+  "name": "jxin-skills",
+  "description": "Jxin's Claude Code skill collection: coding tools and writing tools",
+  "owner": {
+    "name": "jxin",
+    "email": "jxin@thoughtworks.com"
+  },
+  "plugins": [
+    {
+      "name": "jxin-coding",
+      "source": "./coding",
+      "description": "Development toolkit: Git commit review, branch guard, worktree management, code critic, and notification hooks",
+      "version": "1.0.0",
+      "homepage": "https://github.com/Jxin-Cai/jxin-skills",
+      "repository": "https://github.com/Jxin-Cai/jxin-skills",
+      "author": {
+        "name": "jxin",
+        "email": "jxin@thoughtworks.com"
+      }
+    },
+    {
+      "name": "jxin-writing",
+      "source": "./writing",
+      "description": "Creative toolkit: tech article writing, PPT storyboard, image generation, resume crafting, and markdown publishing",
+      "version": "1.0.0",
+      "homepage": "https://github.com/Jxin-Cai/jxin-skills",
+      "repository": "https://github.com/Jxin-Cai/jxin-skills",
+      "author": {
+        "name": "jxin",
+        "email": "jxin@thoughtworks.com"
+      }
+    }
+  ]
+}
