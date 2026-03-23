@@ -1,7 +1,6 @@
 ---
 name: gemini-image-gen
 description: 基于 Gemini 的图片生成技能。传入图片提示词和样式要求，调用 Gemini 生成图片。当用户需要 AI 生成图片、插图、封面、海报、流程图、思维导图时使用此技能。也适用于其他技能（如 ppt-storyboard）内部调用来批量生成图片。
-disable-model-invocation: true
 ---
 
 # Gemini 图片生成器

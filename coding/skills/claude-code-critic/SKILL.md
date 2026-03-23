@@ -1,7 +1,6 @@
 ---
 name: claude-code-critic
 description: 严苛评审——站在 Claude Code 最佳实践角度评审项目或 Skill。当用户说"评审"、"审查"、"review"、"看看有什么问题"、"code audit"、"质量检查"时触发。任务型技能，仅在用户明确要求时触发。
-disable-model-invocation: true
 ---
 
 # Claude Code Critic

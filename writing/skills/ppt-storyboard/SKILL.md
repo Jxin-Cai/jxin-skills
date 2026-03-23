@@ -1,7 +1,6 @@
 ---
 name: ppt-storyboard
 description: PPT叙事分镜设计技能。传入文章内容和叙事对象（如管理层、投资方、技术团队），围绕文章内容设计叙述分镜，每个分镜包含一页PPT的内容和图片生成提示词。确认后逐个调用 gemini-image-gen 技能生成图片，最后自动合成 PDF 文件。当用户需要制作PPT、演示文稿、做汇报材料、生成演示分镜时使用此技能。即使用户只说"帮我做个PPT"或"把这篇文章做成演示"，也应该触发此技能。
-disable-model-invocation: true
 ---
 
 # PPT 叙事分镜设计器

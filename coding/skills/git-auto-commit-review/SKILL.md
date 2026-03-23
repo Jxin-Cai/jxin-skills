@@ -1,7 +1,6 @@
 ---
 name: git-auto-commit-review
 description: Git 提交助手——支持快速提交和深度 CR 提交两种模式。当用户要提交代码时触发，包括"commit"、"提交代码"、"提交"、"准备提交"、"提交前审查"、"cr 提交"等。注意：纯粹的代码审查（不涉及提交意图）不应触发此技能。
-disable-model-invocation: true
 ---
 
 # Git 提交助手
