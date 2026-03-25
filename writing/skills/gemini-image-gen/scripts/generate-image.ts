@@ -4,7 +4,9 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { GeminiClient } from "./lib/gemini-client";
+import { mkdir } from "node:fs/promises";
+import { GeminiClient } from "./gemini-webapi/index.js";
+import { GeneratedImage } from "./gemini-webapi/types/index.js";
 
 interface GenerateOptions {
   promptFile: string;
@@ -56,25 +58,30 @@ async function generateImage(options: GenerateOptions): Promise<string> {
   const client = new GeminiClient();
 
   try {
-    // 自动检测登录状态，如果需要会打开浏览器
-    // 只尝试1次，避免重复打开多个浏览器窗口
-    // 单次登录最多等待300秒（5分钟）
-    await client.init(1);
+    await client.init({ verbose: true });
 
     // 4. 生成图片
     console.log("⏳ 正在生成图片，请稍候...\n");
-    const output = await client.generateImage(prompt);
+    const output = await client.generate_content(prompt);
 
     if (!output.images || output.images.length === 0) {
       throw new Error("未生成图片");
     }
 
-    // 5. 保存图片（传入 cookies）
-    const image = output.images[0];
-    const cookies = client.getCookies();
+    // 5. 保存图片
+    const img = output.images[0];
+    await mkdir(outputDir, { recursive: true });
 
-    console.log(`💾 保存图片到: ${outputPath}`);
-    const savedPath = await image.save(outputDir, filename, cookies);
+    let savedPath: string | null;
+    if (img instanceof GeneratedImage) {
+      savedPath = await img.save(outputDir, filename, undefined, false, false, true);
+    } else {
+      savedPath = await img.save(outputDir, filename, client.cookies, false, false);
+    }
+
+    if (!savedPath) {
+      throw new Error("图片保存失败");
+    }
 
     console.log(`
 ╔═══════════════════════════════════════════════════════╗

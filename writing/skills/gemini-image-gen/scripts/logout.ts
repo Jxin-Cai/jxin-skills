@@ -15,13 +15,15 @@
 
 import fs from "node:fs/promises";
 import fss from "node:fs";
-import path from "node:path";
-import { homedir } from "node:os";
+import {
+  resolveGeminiWebDataDir,
+  resolveGeminiWebCookiePath,
+  resolveGeminiWebChromeProfileDir,
+} from "./gemini-webapi/utils/index.js";
 
-// 配置路径（与 gemini-client.ts 保持一致）
-const CONFIG_DIR = path.join(homedir(), ".local/share/smart-image-generator");
-const COOKIE_PATH = path.join(CONFIG_DIR, "cookies.txt");
-const PROFILE_DIR = path.join(CONFIG_DIR, "chrome-profile");
+const CONFIG_DIR = resolveGeminiWebDataDir();
+const COOKIE_PATH = resolveGeminiWebCookiePath();
+const PROFILE_DIR = resolveGeminiWebChromeProfileDir();
 
 interface LogoutOptions {
   verbose?: boolean;

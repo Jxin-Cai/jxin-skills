@@ -94,8 +94,9 @@ bun scripts/generate-image.ts -p prompts/page-02.md -o images/02.png
 5. 后续使用自动复用登录状态
 
 登录数据存储：
-- Cookies：`~/.local/share/smart-image-generator/cookies.txt`
-- Profile：`~/.local/share/smart-image-generator/chrome-profile/`
+- Cookies：`~/Library/Application Support/baoyu-skills/gemini-web/cookies.json`（macOS）
+- Profile：`~/Library/Application Support/baoyu-skills/chrome-profile/`（macOS）
+- 可通过环境变量覆盖：`GEMINI_WEB_COOKIE_PATH`、`GEMINI_WEB_CHROME_PROFILE_DIR`
 
 ## 账号管理
 
