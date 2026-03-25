@@ -5,11 +5,11 @@
     "": {
       "name": "gemini-image-gen-scripts",
       "dependencies": {
-        "baoyu-chrome-cdp": "file:./vendor/baoyu-chrome-cdp",
+        "chrome-cdp": "file:./vendor/chrome-cdp",
       },
     },
   },
   "packages": {
-    "baoyu-chrome-cdp": ["baoyu-chrome-cdp@file:vendor/baoyu-chrome-cdp", {}],
+    "chrome-cdp": ["chrome-cdp@file:vendor/chrome-cdp", {}],
   }
 }

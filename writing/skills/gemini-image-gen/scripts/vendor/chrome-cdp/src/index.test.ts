@@ -120,7 +120,7 @@ test("getFreePort honors a fixed environment override and otherwise allocates a 
 });
 
 test("findChromeExecutable prefers env overrides and falls back to candidate paths", async (t) => {
-  const root = await makeTempDir("baoyu-chrome-bin-");
+  const root = await makeTempDir("chrome-bin-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const envChrome = path.join(root, "env-chrome");
@@ -128,19 +128,19 @@ test("findChromeExecutable prefers env overrides and falls back to candidate pat
   await fs.writeFile(envChrome, "");
   await fs.writeFile(fallbackChrome, "");
 
-  useEnv(t, { BAOYU_CHROME_PATH: envChrome });
+  useEnv(t, { TEST_CHROME_PATH: envChrome });
   assert.equal(
     findChromeExecutable({
-      envNames: ["BAOYU_CHROME_PATH"],
+      envNames: ["TEST_CHROME_PATH"],
       candidates: { default: [fallbackChrome] },
     }),
     envChrome,
   );
 
-  useEnv(t, { BAOYU_CHROME_PATH: null });
+  useEnv(t, { TEST_CHROME_PATH: null });
   assert.equal(
     findChromeExecutable({
-      envNames: ["BAOYU_CHROME_PATH"],
+      envNames: ["TEST_CHROME_PATH"],
       candidates: { default: [fallbackChrome] },
     }),
     fallbackChrome,
@@ -148,17 +148,17 @@ test("findChromeExecutable prefers env overrides and falls back to candidate pat
 });
 
 test("resolveSharedChromeProfileDir supports env overrides, WSL paths, and default suffixes", (t) => {
-  useEnv(t, { BAOYU_SHARED_PROFILE: "/tmp/custom-profile" });
+  useEnv(t, { TEST_SHARED_PROFILE: "/tmp/custom-profile" });
   assert.equal(
     resolveSharedChromeProfileDir({
-      envNames: ["BAOYU_SHARED_PROFILE"],
+      envNames: ["TEST_SHARED_PROFILE"],
       appDataDirName: "demo-app",
       profileDirName: "demo-profile",
     }),
     path.resolve("/tmp/custom-profile"),
   );
 
-  useEnv(t, { BAOYU_SHARED_PROFILE: null });
+  useEnv(t, { TEST_SHARED_PROFILE: null });
   assert.equal(
     resolveSharedChromeProfileDir({
       wslWindowsHome: "/mnt/c/Users/demo",
@@ -176,7 +176,7 @@ test("resolveSharedChromeProfileDir supports env overrides, WSL paths, and defau
 });
 
 test("findExistingChromeDebugPort reads DevToolsActivePort and validates it against a live endpoint", async (t) => {
-  const root = await makeTempDir("baoyu-cdp-profile-");
+  const root = await makeTempDir("cdp-profile-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const port = await getFreePort();
@@ -190,7 +190,7 @@ test("findExistingChromeDebugPort reads DevToolsActivePort and validates it agai
 });
 
 test("discoverRunningChromeDebugPort reads DevToolsActivePort from the provided user-data dir", async (t) => {
-  const root = await makeTempDir("baoyu-cdp-user-data-");
+  const root = await makeTempDir("cdp-user-data-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const port = await getFreePort();
@@ -215,7 +215,7 @@ test("discoverRunningChromeDebugPort ignores unrelated debugging processes", asy
     return;
   }
 
-  const root = await makeTempDir("baoyu-cdp-user-data-");
+  const root = await makeTempDir("cdp-user-data-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
   const port = await getFreePort();

@@ -140,7 +140,7 @@ export function resolveSharedChromeProfileDir(options: ResolveSharedChromeProfil
     if (override) return path.resolve(override);
   }
 
-  const appDataDirName = options.appDataDirName ?? "baoyu-skills";
+  const appDataDirName = options.appDataDirName ?? "gemini-image-gen";
   const profileDirName = options.profileDirName ?? "chrome-profile";
 
   if (options.wslWindowsHome) {

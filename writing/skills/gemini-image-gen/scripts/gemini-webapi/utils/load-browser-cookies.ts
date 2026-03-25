@@ -12,7 +12,7 @@ import {
   sleep,
   waitForChromeDebugPort,
   type PlatformCandidates,
-} from 'baoyu-chrome-cdp';
+} from 'chrome-cdp';
 
 import { Endpoint, Headers } from '../constants.js';
 import { logger } from './logger.js';
@@ -260,7 +260,7 @@ export async function load_browser_cookies(domain_name: string = '', verbose: bo
     if (cached) return { chrome: cached };
   }
 
-  const hasExplicitProfile = !!(process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || process.env.BAOYU_CHROME_PROFILE_DIR?.trim());
+  const hasExplicitProfile = !!process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
   const existingCookies = hasExplicitProfile ? null : await fetch_cookies_from_existing_chrome(30_000, verbose);
   if (existingCookies) {
     const filtered: CookieMap = {};

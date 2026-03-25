@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 
-const APP_DATA_DIR = 'baoyu-skills';
+const APP_DATA_DIR = 'gemini-image-gen';
 const GEMINI_DATA_DIR = 'gemini-web';
 const COOKIE_FILE_NAME = 'cookies.json';
 const PROFILE_DIR_NAME = 'chrome-profile';
@@ -42,7 +42,7 @@ function getWslWindowsHome(): string | null {
 }
 
 export function resolveGeminiWebChromeProfileDir(): string {
-  const override = process.env.BAOYU_CHROME_PROFILE_DIR?.trim() || process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
+  const override = process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
   if (override) return path.resolve(override);
   const wslHome = getWslWindowsHome();
   if (wslHome) return path.join(wslHome, '.local', 'share', APP_DATA_DIR, PROFILE_DIR_NAME);
