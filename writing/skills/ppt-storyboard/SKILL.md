@@ -286,9 +286,21 @@ Global style:
 - Overall aesthetic: Modern, clean, generous whitespace, flat design with subtle depth
 ```
 
+**提示词文件格式要求**：
+
+每个提示词文件的**第一行**必须是明确的图片生成指令，告诉 Gemini 这是一个图片生成请求而非文档分析任务：
+
+```
+Please generate an image based on the following description:
+```
+
+这一行之后空一行，再接四层提示词结构。没有这条指令，Gemini 可能把提示词当作文档来分析而不是生成图片。
+
 **完整提示词示例**：
 
 ```markdown
+Please generate an image based on the following description:
+
 # Slide 3 — The Tipping Point（第一幕·冲突点）
 
 ## Scene & Narrative
@@ -407,6 +419,7 @@ path forward; the golden light is the opportunity that's still within reach but 
 **提示词生成检查清单**：
 
 对每个提示词，确认：
+- [ ] 文件第一行是否为 `Please generate an image based on the following description:`？
 - [ ] 场景描述是否创造了与情感目标匹配的氛围？
 - [ ] 视觉母题是否按计划演变？
 - [ ] 页面主题是否被视觉化为画面中最突出的元素？

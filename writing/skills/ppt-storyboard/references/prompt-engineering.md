@@ -13,7 +13,9 @@ in bold 48pt font. Three bullet points on the left side. A blue technology image
 on the right side, taking 60% width."
 
 ✅ 好的提示词（描述场景）：
-"A sweeping aerial view of a sprawling traditional city gradually transforming — the
+"Please generate an image based on the following description:
+
+A sweeping aerial view of a sprawling traditional city gradually transforming — the
 left half shows old brick buildings, narrow streets, analog infrastructure; the right
 half shows the same city reimagined with sleek glass structures, glowing data streams
 flowing between buildings like rivers of light. The transition zone in the middle is
@@ -306,6 +308,8 @@ Level 4 — Supporting Points（支撑要点）
 ### 演讲型骨架
 
 ```markdown
+Please generate an image based on the following description:
+
 ## Scene & Narrative
 [电影化场景 + 强隐喻 + 强情绪]
 
@@ -325,6 +329,8 @@ Level 4 — Supporting Points（支撑要点）
 ### 汇报型骨架
 
 ```markdown
+Please generate an image based on the following description:
+
 ## Scene & Narrative
 [有视觉感但克制的场景，用来承托结论和证据]
 
@@ -346,6 +352,8 @@ Level 4 — Supporting Points（支撑要点）
 ### 教学型骨架
 
 ```markdown
+Please generate an image based on the following description:
+
 ## Scene & Narrative
 [帮助理解概念或步骤的解释型场景]
 
