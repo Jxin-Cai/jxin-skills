@@ -12,7 +12,7 @@ import {
   sleep,
   waitForChromeDebugPort,
   type PlatformCandidates,
-} from 'chrome-cdp';
+} from '../../vendor/chrome-cdp/src/index.js';
 
 import { Endpoint, Headers } from '../constants.js';
 import { logger } from './logger.js';

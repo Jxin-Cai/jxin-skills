@@ -1,8 +1,5 @@
 {
   "name": "gemini-image-gen-scripts",
   "private": true,
-  "type": "module",
-  "dependencies": {
-    "chrome-cdp": "file:./vendor/chrome-cdp"
-  }
+  "type": "module"
 }
