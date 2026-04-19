@@ -1,3 +1,5 @@
+import { writeFile } from 'node:fs/promises';
+import process from 'node:process';
 import { Endpoint, ErrorCode, Headers, Model } from './constants.js';
 import { GemMixin } from './components/gem-mixin.js';
 import {
@@ -320,6 +322,15 @@ export class GeminiClient extends GemMixin {
       const txt = await res.text();
       const response_json = extract_json_from_response(txt);
 
+      const unavailableHints = collect_strings(
+        response_json,
+        (s) => /can't create it right now|image creation isn't available in your location|signed out/i.test(s),
+        5,
+      );
+      if (unavailableHints.length > 0) {
+        throw new ImageGenerationError(unavailableHints[0]!);
+      }
+
       let body_json: unknown[] | null = null;
       let body_index = 0;
 
@@ -369,6 +380,11 @@ export class GeminiClient extends GemMixin {
         }
 
         logger.debug(`Invalid response: ${txt.slice(0, 500)}`);
+        if (process.env.GEMINI_WEB_DEBUG_DUMP?.trim()) {
+          try {
+            await writeFile(process.env.GEMINI_WEB_DEBUG_DUMP.trim(), txt, 'utf8');
+          } catch {}
+        }
         throw new APIError('Failed to generate contents. Invalid response data received. Client will try to re-initialize on next request.');
       }
 

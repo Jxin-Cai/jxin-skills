@@ -39,27 +39,12 @@ export class Image {
     };
     if (cookies) headers.Cookie = cookie_header(cookies);
 
-    let url = this.url;
-    let res: Response | null = null;
-    for (let i = 0; i < 10; i++) {
-      res = await fetch_with_timeout(url, {
-        method: 'GET',
-        headers,
-        redirect: 'manual',
-        timeout_ms: 30_000,
-      });
-
-      if (res.status >= 300 && res.status < 400) {
-        const loc = res.headers.get('location');
-        if (!loc) break;
-        url = new URL(loc, url).toString();
-        continue;
-      }
-
-      break;
-    }
-
-    if (!res) throw new Error('Image download failed: no response');
+    const res = await fetch_with_timeout(this.url, {
+      method: 'GET',
+      headers,
+      redirect: 'follow',
+      timeout_ms: 30_000,
+    });
 
     if (!res.ok) {
       throw new Error(`Error downloading image: ${res.status} ${res.statusText}`);

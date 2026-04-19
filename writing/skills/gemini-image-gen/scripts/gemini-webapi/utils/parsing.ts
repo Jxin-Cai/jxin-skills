@@ -1,5 +1,10 @@
 import { logger } from './logger.js';
 
+function is_rpc_payload(value: unknown): value is unknown[] {
+  return Array.isArray(value)
+    && value.some((part) => Array.isArray(part) && part[0] === 'wrb.fr' && typeof part[2] === 'string');
+}
+
 export function get_nested_value<T = unknown>(data: unknown, path: number[], def?: T): T {
   let cur: unknown = data;
   for (let i = 0; i < path.length; i++) {
@@ -24,20 +29,25 @@ export function extract_json_from_response(text: string): unknown {
     throw new TypeError(`Input text is expected to be a string, got ${typeof text} instead.`);
   }
 
-  let last: unknown = undefined;
+  const parsed: unknown[] = [];
   for (const line of text.split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed) continue;
     try {
-      last = JSON.parse(trimmed) as unknown;
+      parsed.push(JSON.parse(trimmed) as unknown);
     } catch {}
   }
 
-  if (last === undefined) {
+  for (let i = parsed.length - 1; i >= 0; i--) {
+    const value = parsed[i];
+    if (is_rpc_payload(value)) return value;
+  }
+
+  if (parsed.length === 0) {
     throw new Error('Could not find a valid JSON object or array in the response.');
   }
 
-  return last;
+  return parsed[parsed.length - 1];
 }
 
 export const extractJsonFromResponse = extract_json_from_response;

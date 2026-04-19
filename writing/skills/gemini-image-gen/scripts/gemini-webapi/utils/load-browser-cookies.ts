@@ -19,6 +19,7 @@ import { logger } from './logger.js';
 import { cookie_header, fetch_with_timeout } from './http.js';
 import { read_cookie_file, type CookieMap, write_cookie_file } from './cookie-file.js';
 import { resolveGeminiWebChromeProfileDir, resolveGeminiWebCookiePath } from './paths.js';
+import { extractAccessTokenFromHtml, hasReusableBrowserCookies } from './get-access-token.js';
 
 const GEMINI_APP_URL = 'https://gemini.google.com/app';
 
@@ -91,7 +92,11 @@ async function is_gemini_session_ready(cookies: CookieMap, verbose: boolean): Pr
     }
 
     const text = await res.text();
-    return /\"SNlM0e\":\"(.*?)\"/.test(text);
+    const token = extractAccessTokenFromHtml(text);
+    if (token) return true;
+
+    if (verbose) logger.debug('Gemini init check missing SNlM0e in authenticated INIT HTML');
+    return false;
   } catch (e) {
     if (verbose) logger.debug(`Gemini init check error: ${e instanceof Error ? e.message : String(e)}`);
     return false;
@@ -253,7 +258,12 @@ export async function load_browser_cookies(domain_name: string = '', verbose: bo
   const force = process.env.GEMINI_WEB_LOGIN?.trim() || process.env.GEMINI_WEB_FORCE_LOGIN?.trim();
   if (!force) {
     const cached = await read_cookie_file();
-    if (cached) return { chrome: cached };
+    if (cached && hasReusableBrowserCookies(cached)) {
+      if (await is_gemini_session_ready(cached, verbose)) return { chrome: cached };
+      if (verbose) logger.debug('Ignoring cached cookie file because Gemini INIT no longer returns SNlM0e for it.');
+    } else if (cached && verbose) {
+      logger.debug('Ignoring cached cookie file because it is missing auxiliary browser cookies (NID/SAPISID/APISID).');
+    }
   }
 
   const hasExplicitProfile = !!(process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || process.env.BAOYU_CHROME_PROFILE_DIR?.trim());
@@ -270,7 +280,7 @@ export async function load_browser_cookies(domain_name: string = '', verbose: bo
   }
 
   const profileDir = process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || process.env.BAOYU_CHROME_PROFILE_DIR?.trim() || resolveGeminiWebChromeProfileDir();
-  const cookies = await fetch_google_cookies_via_cdp(profileDir, 120_000, verbose);
+  const cookies = await fetch_google_cookies_via_cdp(profileDir, 300_000, verbose);
 
   const filtered: CookieMap = {};
   for (const [key, value] of Object.entries(cookies)) {

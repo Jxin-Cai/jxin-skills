@@ -10,6 +10,20 @@ import { read_cookie_file, write_cookie_file } from './cookie-file.js';
 import { resolveGeminiWebDataDir, resolveGeminiWebCookiePath } from './paths.js';
 import { load_browser_cookies } from './load-browser-cookies.js';
 
+function extract_access_token_from_html(text: string): string | null {
+  const match = text.match(/"SNlM0e":"(.*?)"/);
+  return match?.[1] ?? null;
+}
+
+function has_reusable_browser_cookies(cookies: Record<string, string> | null | undefined): boolean {
+  if (!cookies) return false;
+  return !!(
+    cookies['__Secure-1PSID']
+    && cookies['__Secure-1PSIDTS']
+    && (cookies.NID || cookies.SAPISID || cookies.APISID)
+  );
+}
+
 async function send_request(cookies: Record<string, string>, verbose: boolean): Promise<[string, Record<string, string>]> {
   const res = await fetch_with_timeout(Endpoint.INIT, {
     method: 'GET',
@@ -20,10 +34,10 @@ async function send_request(cookies: Record<string, string>, verbose: boolean): 
 
   if (!res.ok) throw new Error(`Init failed: ${res.status} ${res.statusText}`);
   const text = await res.text();
-  const m = text.match(/\"SNlM0e\":\"(.*?)\"/);
-  if (!m) throw new Error('Missing SNlM0e in response');
+  const token = extract_access_token_from_html(text);
+  if (!token) throw new Error('Missing SNlM0e in authenticated INIT response');
   if (verbose) logger.debug('Init succeeded. Initializing client...');
-  return [m[1]!, cookies];
+  return [token, cookies];
 }
 
 function merge_cookie_maps(...maps: Array<Record<string, string> | null | undefined>): Record<string, string> {
@@ -88,8 +102,9 @@ export async function get_access_token(
 
   const cookieFilePath = resolveGeminiWebCookiePath();
   const cachedFile = await read_cookie_file(cookieFilePath);
+  const reusableCachedFile = has_reusable_browser_cookies(cachedFile) ? cachedFile : null;
   const forceLogin = !!(process.env.GEMINI_WEB_LOGIN?.trim() || process.env.GEMINI_WEB_FORCE_LOGIN?.trim());
-  const shouldUseChromeFirst = forceLogin || (!cachedFile && !base_cookies['__Secure-1PSID'] && !base_cookies['__Secure-1PSIDTS']);
+  const shouldUseChromeFirst = forceLogin || (!reusableCachedFile && !base_cookies['__Secure-1PSID'] && !base_cookies['__Secure-1PSIDTS']);
 
   if (shouldUseChromeFirst) {
     try {
@@ -108,8 +123,10 @@ export async function get_access_token(
     logger.debug('Skipping loading base cookies. Either __Secure-1PSID or __Secure-1PSIDTS is not provided.');
   }
 
-  if (cachedFile) {
-    candidates.push(merge_cookie_maps(extra, cachedFile));
+  if (reusableCachedFile) {
+    candidates.push(merge_cookie_maps(extra, reusableCachedFile));
+  } else if (cachedFile && verbose) {
+    logger.debug('Ignoring cached cookie file because it does not contain a reusable authenticated browser session.');
   }
 
   if (base_cookies['__Secure-1PSID'] && !base_cookies['__Secure-1PSIDTS']) {
@@ -133,7 +150,7 @@ export async function get_access_token(
   const unique: Record<string, string>[] = [];
   const seen = new Set<string>();
   for (const c of candidates) {
-    const key = `${c['__Secure-1PSID'] ?? ''}:${c['__Secure-1PSIDTS'] ?? ''}:${c.NID ?? ''}`;
+    const key = `${c['__Secure-1PSID'] ?? ''}:${c['__Secure-1PSIDTS'] ?? ''}:${c.NID ?? ''}:${c.SAPISID ?? ''}:${c.APISID ?? ''}`;
     if (seen.has(key)) continue;
     seen.add(key);
     unique.push(c);
@@ -190,3 +207,5 @@ export async function get_access_token(
 }
 
 export const getAccessToken = get_access_token;
+export const extractAccessTokenFromHtml = extract_access_token_from_html;
+export const hasReusableBrowserCookies = has_reusable_browser_cookies;

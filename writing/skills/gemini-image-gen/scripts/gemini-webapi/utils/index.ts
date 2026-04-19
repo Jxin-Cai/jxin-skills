@@ -1,5 +1,5 @@
 export { running } from './decorators.js';
-export { get_access_token, getAccessToken } from './get-access-token.js';
+export { get_access_token, getAccessToken, extractAccessTokenFromHtml, hasReusableBrowserCookies } from './get-access-token.js';
 export { load_browser_cookies, loadBrowserCookies } from './load-browser-cookies.js';
 export { logger, set_log_level, setLogLevel } from './logger.js';
 export { extract_json_from_response, extractJsonFromResponse, get_nested_value, getNestedValue } from './parsing.js';

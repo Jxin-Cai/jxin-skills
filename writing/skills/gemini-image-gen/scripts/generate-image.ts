@@ -14,13 +14,19 @@ interface GenerateOptions {
   scene?: string;
 }
 
-async function generateImage(options: GenerateOptions): Promise<string> {
-  console.log(`
-╔═══════════════════════════════════════════════════════╗
-║   Gemini 图片生成器                                  ║
-╚═══════════════════════════════════════════════════════╝
-`);
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 60_000;
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableGenerateError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /(429|rate limit|timed out|timeout|temporarily blocked|fetch failed|ECONNREFUSED|AbortError|ConnectionRefused)/i.test(message);
+}
+
+async function generateImageOnce(options: GenerateOptions): Promise<string> {
   // 1. 读取提示词
   console.log(`📖 读取提示词: ${options.promptFile}`);
   const prompt = await fs.readFile(options.promptFile, "utf-8");
@@ -83,7 +89,25 @@ async function generateImage(options: GenerateOptions): Promise<string> {
       throw new Error("图片保存失败");
     }
 
-    console.log(`
+    return savedPath;
+  } finally {
+    await client.close();
+  }
+}
+
+async function generateImage(options: GenerateOptions): Promise<string> {
+  console.log(`
+╔═══════════════════════════════════════════════════════╗
+║   Gemini 图片生成器                                  ║
+╚═══════════════════════════════════════════════════════╝
+`);
+
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const savedPath = await generateImageOnce(options);
+      console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║   ✅ 图片生成成功！                                   ║
 ╚═══════════════════════════════════════════════════════╝
@@ -91,11 +115,19 @@ async function generateImage(options: GenerateOptions): Promise<string> {
 📁 提示词: ${options.promptFile}
 📁 图片:   ${savedPath}
 `);
+      return savedPath;
+    } catch (error) {
+      lastError = error;
+      if (attempt >= MAX_RETRIES || !isRetryableGenerateError(error)) {
+        throw error;
+      }
 
-    return savedPath;
-  } finally {
-    await client.close();
+      console.warn(`⚠️ 第 ${attempt + 1} 次生成失败，将在 ${RETRY_DELAY_MS / 1000} 秒后重试...`);
+      await sleep(RETRY_DELAY_MS);
+    }
   }
+
+  throw lastError;
 }
 
 /**
@@ -175,10 +207,10 @@ if (import.meta.main) {
 示例:
   # 使用默认输出路径
   bun generate-image.ts -p prompts/cover-prompt.md
-  
+
   # 指定输出路径
   bun generate-image.ts -p prompts/cover-prompt.md -o images/cover.png
-  
+
   # 默认输出结构（兼容旧约定）：
   # 项目根目录/
   #   smart-image-generator-output/

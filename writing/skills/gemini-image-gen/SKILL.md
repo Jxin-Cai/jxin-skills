@@ -93,6 +93,7 @@ bun scripts/generate-image.ts -p prompts/page-02.md -o images/02.png
 4. 登录成功后自动保存状态，浏览器关闭
 5. 后续使用自动复用登录状态
 6. 如果显式指定 profile，则优先使用指定 profile，不复用外部已运行 Chrome 会话
+7. 如果 Gemini Web 当前账号/IP/地区不支持图片生成，脚本会直接报出 Gemini 返回的业务错误，而不是长时间卡住
 
 登录数据存储：
 - Cookies：`~/Library/Application Support/gemini-image-gen/gemini-web/cookies.json`（macOS）
