@@ -17,7 +17,7 @@ interface GenerateOptions {
 async function generateImage(options: GenerateOptions): Promise<string> {
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
-║   智能图片生成器                                      ║
+║   Gemini 图片生成器                                  ║
 ╚═══════════════════════════════════════════════════════╝
 `);
 
@@ -102,7 +102,7 @@ async function generateImage(options: GenerateOptions): Promise<string> {
  * 获取默认图片输出路径
  * 智能推断：根据提示词文件位置，自动确定图片保存位置
  *
- * 逻辑：
+ * 兼容旧目录约定：
  * - 提示词：.../smart-image-generator-output/prompts/xxx.md
  * - 图片：  .../smart-image-generator-output/images/xxx.png
  */
@@ -114,7 +114,7 @@ async function getDefaultImageOutputPath(promptFile: string): Promise<string> {
 
   const promptDir = path.dirname(promptFileAbs);
 
-  // 检查提示词文件是否在 smart-image-generator-output/prompts/ 目录下
+  // 检查提示词文件是否在旧版 smart-image-generator-output/prompts/ 目录下
   if (
     promptDir.endsWith(path.join("smart-image-generator-output", "prompts"))
   ) {
@@ -129,7 +129,7 @@ async function getDefaultImageOutputPath(promptFile: string): Promise<string> {
     return path.join(imageDir, imageFilename);
   }
 
-  // 提示词不在标准目录下，fallback：在提示词同目录创建 images/
+  // 提示词不在兼容目录下，fallback：在提示词同级创建兼容输出目录
   const imageDir = path.join(
     promptDir,
     "..",
@@ -140,7 +140,7 @@ async function getDefaultImageOutputPath(promptFile: string): Promise<string> {
   const imageFilename = `${promptBasename}.png`;
 
   console.log(
-    `📂 Fallback：在提示词同级创建 smart-image-generator-output/images/`,
+    `📂 Fallback：在提示词同级创建兼容目录 smart-image-generator-output/images/`,
   );
   return path.join(imageDir, imageFilename);
 }
@@ -169,7 +169,7 @@ if (import.meta.main) {
 
 选项:
   -p, --prompt-file <file>  提示词文件路径 (必需)
-  -o, --output <file>       输出图片路径 (可选，默认: 项目根目录/smart-image-generator-output/images/)
+  -o, --output <file>       输出图片路径 (可选，默认: 兼容 smart-image-generator-output/images/)
   -s, --scene <type>        场景类型 (可选)
 
 示例:
@@ -179,7 +179,7 @@ if (import.meta.main) {
   # 指定输出路径
   bun generate-image.ts -p prompts/cover-prompt.md -o images/cover.png
   
-  # 默认输出结构：
+  # 默认输出结构（兼容旧约定）：
   # 项目根目录/
   #   smart-image-generator-output/
   #     prompts/    # 提示词文件

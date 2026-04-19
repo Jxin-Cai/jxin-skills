@@ -5,8 +5,8 @@ import {
   discoverRunningChromeDebugPort,
   findChromeExecutable as findChromeExecutableBase,
   findExistingChromeDebugPort,
+  gracefulKillChrome,
   getFreePort,
-  killChrome,
   launchChrome as launchChromeBase,
   openPageSession,
   sleep,
@@ -241,15 +241,11 @@ async function fetch_google_cookies_via_cdp(
         try {
           await cdp.send('Target.closeTarget', { targetId }, { timeoutMs: 5_000 });
         } catch {}
-      } else {
-        try {
-          await cdp.send('Browser.close', {}, { timeoutMs: 5_000 });
-        } catch {}
       }
       cdp.close();
     }
 
-    if (chrome) killChrome(chrome);
+    if (chrome) await gracefulKillChrome(chrome, port);
   }
 }
 
@@ -260,7 +256,7 @@ export async function load_browser_cookies(domain_name: string = '', verbose: bo
     if (cached) return { chrome: cached };
   }
 
-  const hasExplicitProfile = !!process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
+  const hasExplicitProfile = !!(process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || process.env.BAOYU_CHROME_PROFILE_DIR?.trim());
   const existingCookies = hasExplicitProfile ? null : await fetch_cookies_from_existing_chrome(30_000, verbose);
   if (existingCookies) {
     const filtered: CookieMap = {};
@@ -273,7 +269,7 @@ export async function load_browser_cookies(domain_name: string = '', verbose: bo
     return { chrome: filtered };
   }
 
-  const profileDir = process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || resolveGeminiWebChromeProfileDir();
+  const profileDir = process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim() || process.env.BAOYU_CHROME_PROFILE_DIR?.trim() || resolveGeminiWebChromeProfileDir();
   const cookies = await fetch_google_cookies_via_cdp(profileDir, 120_000, verbose);
 
   const filtered: CookieMap = {};

@@ -478,12 +478,43 @@ export function killChrome(chrome: ChildProcess): void {
     chrome.kill("SIGTERM");
   } catch {}
   setTimeout(() => {
-    if (!chrome.killed) {
+    if (chrome.exitCode === null && chrome.signalCode === null) {
       try {
         chrome.kill("SIGKILL");
       } catch {}
     }
   }, 2_000).unref?.();
+}
+
+export async function gracefulKillChrome(
+  chrome: ChildProcess,
+  port?: number,
+  timeoutMs = 6_000,
+): Promise<void> {
+  if (chrome.exitCode !== null || chrome.signalCode !== null) return;
+
+  const exitPromise = new Promise<void>((resolve) => {
+    chrome.once("exit", () => resolve());
+  });
+
+  killChrome(chrome);
+
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (chrome.exitCode !== null || chrome.signalCode !== null) return;
+    if (port !== undefined && !await isPortListening(port, 250)) return;
+
+    const exited = await Promise.race([
+      exitPromise.then(() => true),
+      sleep(100).then(() => false),
+    ]);
+    if (exited) return;
+  }
+
+  await Promise.race([
+    exitPromise,
+    sleep(250),
+  ]);
 }
 
 export async function openPageSession(options: OpenPageSessionOptions): Promise<PageSession> {

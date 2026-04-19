@@ -42,7 +42,7 @@ function getWslWindowsHome(): string | null {
 }
 
 export function resolveGeminiWebChromeProfileDir(): string {
-  const override = process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
+  const override = process.env.BAOYU_CHROME_PROFILE_DIR?.trim() || process.env.GEMINI_WEB_CHROME_PROFILE_DIR?.trim();
   if (override) return path.resolve(override);
   const wslHome = getWslWindowsHome();
   if (wslHome) return path.join(wslHome, '.local', 'share', APP_DATA_DIR, PROFILE_DIR_NAME);
