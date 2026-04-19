@@ -408,7 +408,7 @@ path forward; the golden light is the opportunity that's still within reach but 
 
 如果用户选择 Thoughtworks 风格，读取 `references/thoughtworks-style.md` 获取完整的品牌规范。
 
-选定样式后，生成一个 `style-config.md` 保存到输出目录的 `prompts/` 下，作为所有分镜提示词的"第四层·风格统一层"模板。
+如果用户没有指定最终输出路径，则默认在**调用该技能的会话当前根目录**下创建 `ppt-<名称>/` 作为输出目录；如果连名称也无法稳定提取，则回退到当前会话根目录下的 `image_output/`，并在其中保存本次 PPT 相关产物。无论哪种情况，都不要把提示词、图片、PDF 或中间产物写入 `ppt-storyboard` 或 `gemini-image-gen` 技能自身目录。
 
 ### Step 8: 生成完整提示词文件
 
@@ -434,9 +434,10 @@ path forward; the golden light is the opportunity that's still within reach but 
 
 **关键执行步骤**：
 
-1. 创建输出目录：`<用户指定路径或当前目录>/ppt-<名称>/`
+1. 创建输出目录：`<用户指定路径>`；如果用户未指定，则使用调用会话当前根目录下的 `ppt-<名称>/`，名称不可用时回退到 `image_output/`
 2. 在 `prompts/` 子目录保存样式配置和每个分镜的提示词文件
 3. 在 `images/` 子目录存放生成的图片
+4. 所有输出都必须写入当前会话根目录下的业务输出目录，不要写入 Skill 自身目录
 
 **调用方式**：
 
@@ -447,8 +448,8 @@ cd <gemini-image-gen 技能目录>
 # 第1张
 bun scripts/generate-image.ts -p <prompts/01-cover.md 的绝对路径> -o <images/01.png 的绝对路径>
 
-# 等待 15-20 秒（防风控）
-sleep 18
+# 等待 5 秒 + 1-5 秒随机秒数（防风控）
+sleep $((5 + RANDOM % 5 + 1))
 
 # 第2张
 bun scripts/generate-image.ts -p <prompts/02-status-quo.md 的绝对路径> -o <images/02.png 的绝对路径>
