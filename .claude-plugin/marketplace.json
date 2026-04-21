@@ -10,7 +10,7 @@
       "name": "jxin-coding",
       "source": "./coding",
       "description": "Development toolkit: Git commit review, branch guard, worktree management, code critic, and notification hooks",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "homepage": "https://github.com/Jxin-Cai/jxin-skills",
       "repository": "https://github.com/Jxin-Cai/jxin-skills",
       "author": {
@@ -22,7 +22,7 @@
       "name": "jxin-writing",
       "source": "./writing",
       "description": "Creative toolkit: tech article writing, PPT storyboard, image generation, resume crafting, and markdown publishing",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "homepage": "https://github.com/Jxin-Cai/jxin-skills",
       "repository": "https://github.com/Jxin-Cai/jxin-skills",
       "author": {

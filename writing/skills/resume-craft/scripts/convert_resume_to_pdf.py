@@ -28,6 +28,7 @@ import os
 import re
 import sys
 import asyncio
+from html import unescape
 from pathlib import Path
 
 try:
@@ -179,9 +180,15 @@ def get_css(theme: dict) -> str:
     }}
 
     .profile-snapshot .basic-info a {{
+        display: inline-block;
         color: {theme["accent"]};
         text-decoration: none;
-        border-bottom: 1px dotted {theme["accent_border"]};
+        padding: 1px 7px;
+        margin: 1px 2px 1px 0;
+        border-radius: 999px;
+        border: 1px solid {theme["accent_border"]};
+        background: {theme["accent_glow"]};
+        font-weight: 500;
     }}
 
     .profile-snapshot p {{
@@ -405,7 +412,27 @@ def get_css(theme: dict) -> str:
        ============================================================ */
     a {{
         color: {theme["link"]};
-        text-decoration: none;
+        text-decoration-line: underline;
+        text-decoration-color: {theme["accent_border"]};
+        text-decoration-thickness: 1.2px;
+        text-underline-offset: 2px;
+        font-weight: 500;
+    }}
+
+    a[href^="http"]::after {{
+        content: " ↗";
+        font-size: 10px;
+        color: {theme["text_muted"]};
+    }}
+
+    a:hover {{
+        color: {theme["accent"]};
+        text-decoration-color: {theme["accent"]};
+    }}
+
+    .profile-snapshot .basic-info a:hover {{
+        border-color: {theme["accent"]};
+        background: {theme["tag_bg"]};
     }}
 
     /* ============================================================
@@ -431,6 +458,106 @@ def get_css(theme: dict) -> str:
     }}
 
     /* ============================================================
+       技能矩阵
+       ============================================================ */
+    .skills-matrix-section {{
+        page-break-inside: avoid;
+    }}
+
+    .skills-matrix-section .skills-row {{
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 9px 12px;
+        margin-bottom: 8px;
+        background: {theme["section_bg"]};
+        border: 1px solid {theme["border"]};
+        border-left: 3px solid {theme["accent_border"]};
+        border-radius: 6px;
+        break-inside: avoid;
+    }}
+
+    .skills-matrix-section .skills-label {{
+        flex: 0 0 100px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: {theme["text_heading"]};
+        line-height: 1.7;
+    }}
+
+    .skills-matrix-section .skills-items {{
+        flex: 1;
+        min-width: 0;
+        line-height: 1.7;
+    }}
+
+    .skills-matrix-section .skills-row code {{
+        margin: 1px 4px 1px 0;
+    }}
+
+    /* ============================================================
+       代表项目
+       ============================================================ */
+    .key-projects-section {{
+        margin-top: 2px;
+    }}
+
+    .key-projects-section .project-card {{
+        background: linear-gradient(180deg, {theme["section_bg"]} 0%, {theme["bg"]} 100%);
+        border: 1px solid {theme["border"]};
+        border-radius: 8px;
+        padding: 14px 15px 12px;
+        margin-bottom: 14px;
+    }}
+
+    .key-projects-section .project-card h3 {{
+        margin-top: 0;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid {theme["border"]};
+        break-after: avoid;
+    }}
+
+    .key-projects-section .project-block {{
+        margin-bottom: 10px;
+    }}
+
+    .key-projects-section .project-block:last-child {{
+        margin-bottom: 0;
+    }}
+
+    .key-projects-section .project-block-label {{
+        display: inline-block;
+        margin-bottom: 5px;
+        padding: 2px 8px;
+        background: {theme["accent_glow"]};
+        border: 1px solid {theme["accent_border"]};
+        border-radius: 999px;
+        color: {theme["text_heading"]};
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }}
+
+    .key-projects-section .project-block p {{
+        margin-bottom: 0;
+    }}
+
+    .key-projects-section .project-block ul {{
+        margin-top: 4px;
+        margin-bottom: 0;
+    }}
+
+    .key-projects-section .project-result {{
+        border-left: 3px solid {theme["accent_border"]};
+        padding-left: 10px;
+    }}
+
+    .key-projects-section .project-tech-stack code {{
+        margin: 1px 4px 1px 0;
+    }}
+
+    /* ============================================================
        打印适配
        ============================================================ */
     @media print {{
@@ -445,8 +572,12 @@ def get_css(theme: dict) -> str:
         }}
         h2, h3 {{ break-after: avoid; }}
         li {{ break-inside: avoid; }}
-        a {{ color: inherit; }}
-        a[href]::after {{ content: none; }}
+        a {{
+            color: {theme["link"]};
+        }}
+        a[href^="http"]::after {{
+            color: {theme["text_muted"]};
+        }}
     }}
     """
 
@@ -516,12 +647,201 @@ def convert_local_images_to_base64(html: str, base_dir: str) -> str:
     return img_pattern.sub(replace_img, html)
 
 
+def _strip_tags(html_fragment: str) -> str:
+    return re.sub(r"<[^>]+>", "", html_fragment)
+
+
+def _normalize_heading_text(html_fragment: str) -> str:
+    return re.sub(r"\s+", " ", unescape(_strip_tags(html_fragment))).strip().lower()
+
+
+def _linkify_inline_text(html_fragment: str) -> str:
+    if "<a " in html_fragment:
+        return html_fragment
+
+    html_fragment = re.sub(
+        r"(?<![\w@./-])([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?![\w@.-])",
+        lambda m: f'<a href="mailto:{m.group(1)}">{m.group(1)}</a>',
+        html_fragment,
+    )
+    html_fragment = re.sub(
+        r'(?<![="])(https?://[^\s<]+|(?:www\.|github\.com/)[^\s<]+)',
+        lambda m: f'<a href="{m.group(1) if m.group(1).startswith(("http://", "https://")) else "https://" + m.group(1)}">{m.group(1)}</a>',
+        html_fragment,
+    )
+    return html_fragment
+
+
+def _wrap_named_h2_sections(html: str, heading_names, class_name: str, transform=None) -> str:
+    h2_pattern = re.compile(r"<h2\b[^>]*>.*?</h2>", re.DOTALL)
+    h2_matches = list(h2_pattern.finditer(html))
+    if not h2_matches:
+        return html
+
+    targets = {name.lower() for name in heading_names}
+    parts = []
+    cursor = 0
+
+    for index, match in enumerate(h2_matches):
+        if _normalize_heading_text(match.group(0)) not in targets:
+            continue
+
+        section_end = h2_matches[index + 1].start() if index + 1 < len(h2_matches) else len(html)
+        section_html = html[match.start():section_end].strip()
+        if transform:
+            section_html = transform(section_html)
+
+        parts.append(html[cursor:match.start()])
+        parts.append(f'<section class="{class_name}">\n{section_html}\n</section>\n')
+        cursor = section_end
+
+    parts.append(html[cursor:])
+    return "".join(parts)
+
+
+def _transform_skills_matrix_section(section_html: str) -> str:
+    row_pattern = re.compile(r"<p>\s*<strong>(.*?)</strong>\s*[：:]\s*(.*?)</p>", re.DOTALL)
+
+    def replace_row(match):
+        label = _strip_tags(match.group(1)).strip()
+        items = match.group(2).strip()
+        return (
+            '<div class="skills-row">'
+            f'<span class="skills-label">{label}</span>'
+            f'<span class="skills-items">{items}</span>'
+            '</div>'
+        )
+
+    return row_pattern.sub(replace_row, section_html)
+
+
+def _project_block_class(label: str) -> str:
+    mapping = {
+        "背景": "background",
+        "situation": "background",
+        "任务": "task",
+        "task": "task",
+        "行动": "action",
+        "action": "action",
+        "结果": "result",
+        "result": "result",
+        "技术栈": "tech-stack",
+        "tech stack": "tech-stack",
+    }
+    return mapping.get(_normalize_heading_text(label), "detail")
+
+
+def _render_project_block_content(content_html: str, list_html: str) -> str:
+    content_html = content_html.strip()
+    list_html = list_html.strip()
+    if list_html:
+        parts = []
+        if content_html:
+            parts.append(f"<p>{content_html}</p>")
+        parts.append(list_html)
+        return "\n".join(parts)
+
+    lines = [line.strip() for line in re.split(r"<br\s*/?>", content_html) if line.strip()]
+    prefix_lines = []
+    list_items = []
+
+    for line in lines:
+        plain_line = _normalize_heading_text(line)
+        if plain_line.startswith("- ") or plain_line.startswith("• "):
+            list_items.append(re.sub(r"^[-•]\s*", "", line).strip())
+        elif list_items:
+            list_items[-1] = f"{list_items[-1]} {line}".strip()
+        else:
+            prefix_lines.append(line)
+
+    if list_items:
+        parts = []
+        if prefix_lines:
+            parts.append(f"<p>{'<br />'.join(prefix_lines)}</p>")
+        parts.append("<ul>" + "".join(f"<li>{item}</li>" for item in list_items) + "</ul>")
+        return "\n".join(parts)
+
+    if content_html:
+        return f"<p>{content_html}</p>"
+
+    return ""
+
+
+def _transform_project_entry(project_html: str) -> str:
+    title_match = re.match(r"\s*(<h3\b[^>]*>.*?</h3>)", project_html, re.DOTALL)
+    if not title_match:
+        return f'<article class="project-card">\n{project_html.strip()}\n</article>'
+
+    title_html = title_match.group(1)
+    body_html = project_html[title_match.end():]
+    block_pattern = re.compile(
+        r"<p>\s*<strong>(背景|Situation|任务|Task|行动|Action|结果|Result|技术栈|Tech Stack)</strong>\s*[：:]?\s*(.*?)</p>(\s*<ul>.*?</ul>)?",
+        re.DOTALL,
+    )
+
+    blocks = [title_html]
+    cursor = 0
+    for match in block_pattern.finditer(body_html):
+        prefix = body_html[cursor:match.start()].strip()
+        if prefix:
+            blocks.append(prefix)
+
+        label = _strip_tags(match.group(1)).strip()
+        content = _render_project_block_content(match.group(2), match.group(3) or "")
+        blocks.append(
+            f'<div class="project-block project-{_project_block_class(label)}">\n'
+            f'<div class="project-block-label">{label}</div>\n'
+            f'{content}\n'
+            '</div>'
+        )
+        cursor = match.end()
+
+    suffix = body_html[cursor:].strip()
+    if suffix:
+        blocks.append(suffix)
+
+    return '<article class="project-card">\n' + "\n".join(blocks) + '\n</article>'
+
+
+def _transform_key_projects_section(section_html: str) -> str:
+    heading_match = re.match(r"\s*(<h2\b[^>]*>.*?</h2>)", section_html, re.DOTALL)
+    if not heading_match:
+        return section_html
+
+    heading_html = heading_match.group(1)
+    body_html = section_html[heading_match.end():]
+    trailing_separator = ""
+    trailing_match = re.search(r"(\s*<hr\s*/?>\s*)$", body_html)
+    if trailing_match:
+        trailing_separator = trailing_match.group(1).strip()
+        body_html = body_html[:trailing_match.start()]
+
+    h3_pattern = re.compile(r"<h3\b[^>]*>.*?</h3>", re.DOTALL)
+    project_matches = list(h3_pattern.finditer(body_html))
+    if not project_matches:
+        return section_html
+
+    parts = [heading_html]
+    leading = body_html[:project_matches[0].start()].strip()
+    if leading:
+        parts.append(leading)
+
+    for index, match in enumerate(project_matches):
+        project_end = project_matches[index + 1].start() if index + 1 < len(project_matches) else len(body_html)
+        parts.append(_transform_project_entry(body_html[match.start():project_end]))
+
+    if trailing_separator:
+        parts.append(trailing_separator)
+
+    return "\n".join(parts)
+
+
 def enhance_resume_html(html: str) -> str:
     """增强简历 HTML 结构，添加语义化 CSS 类"""
 
     # 检测候选人画像区域（从 h1 到第一个 h2 或第一个 hr）
-    h1_match = re.search(r"<h1>(.*?)</h1>", html)
-    h2_match = re.search(r"<h2>", html)
+    h1_match = re.search(r"<h1\b[^>]*>.*?</h1>", html)
+    h2_match = re.search(r"<h2\b[^>]*>.*?</h2>", html)
     hr_match = re.search(r"<hr\s*/?>", html)
 
     # 画像区域结束位置：取 h2 和 hr 中较早出现的
@@ -531,7 +851,7 @@ def enhance_resume_html(html: str) -> str:
     if hr_match and (end_pos is None or hr_match.start() < end_pos):
         end_pos = hr_match.start()
 
-    if h1_match and end_pos:
+    if h1_match and end_pos is not None:
         start = h1_match.start()
         profile_content = html[start:end_pos].strip()
         rest_content = html[end_pos:]
@@ -552,7 +872,7 @@ def enhance_resume_html(html: str) -> str:
         # 检测引用块中的基本信息
         profile_enhanced = re.sub(
             r"<blockquote>\s*<p>(.*?)</p>\s*</blockquote>",
-            lambda m: '<div class="basic-info">' + m.group(1) + "</div>",
+            lambda m: '<div class="basic-info">' + _linkify_inline_text(m.group(1)) + "</div>",
             profile_enhanced,
             flags=re.DOTALL,
         )
@@ -565,6 +885,18 @@ def enhance_resume_html(html: str) -> str:
             + rest_content
         )
 
+    html = _wrap_named_h2_sections(
+        html,
+        {"技能矩阵", "skills matrix"},
+        "skills-matrix-section",
+        _transform_skills_matrix_section,
+    )
+    html = _wrap_named_h2_sections(
+        html,
+        {"代表项目", "工程呈现", "key projects"},
+        "key-projects-section",
+        _transform_key_projects_section,
+    )
     return html
 
 
@@ -793,7 +1125,7 @@ def main():
     html_body = md_to_html(md_content, base_dir)
 
     # 提取标题
-    title_match = re.search(r"<h1>(.*?)</h1>", html_body)
+    title_match = re.search(r"<h1\b[^>]*>(.*?)</h1>", html_body)
     title = title_match.group(1) if title_match else "Resume"
 
     # 生成完整 HTML
