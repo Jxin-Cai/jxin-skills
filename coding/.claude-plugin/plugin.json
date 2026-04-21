@@ -1,7 +1,7 @@
 {
   "name": "jxin-coding",
   "description": "Development toolkit: Git commit review, branch guard, worktree management, code critic, and notification hooks",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "jxin",
     "email": "jxin@thoughtworks.com"

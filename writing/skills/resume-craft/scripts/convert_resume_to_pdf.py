@@ -44,56 +44,70 @@ except ImportError:
 
 THEMES = {
     "dark": {
-        "name": "琥珀深邃",
-        # 画像区 — 深炭底 + 橙色点睛
-        "profile_bg_from": "#1C1C1E",
-        "profile_bg_to": "#2C2C2E",
-        "profile_name_color": "#FFFFFF",
-        "profile_text": "rgba(255,255,255,0.88)",
-        "profile_muted": "rgba(255,255,255,0.6)",
-        # 橙色体系
-        "accent": "#E8740C",
-        "accent_warm": "#F5A623",
-        "accent_glow": "rgba(232,116,12,0.12)",
-        "accent_border": "rgba(232,116,12,0.35)",
+        "name": "曜石菁英",
+        # 画像区 — 深曜石暖棕底 + 琥珀橙点缀
+        "profile_bg_from": "#2C2018",
+        "profile_bg_to": "#473124",
+        "profile_name_color": "#FBF3E8",
+        "profile_text": "rgba(251,243,232,0.88)",
+        "profile_muted": "rgba(251,243,232,0.68)",
+        "profile_accent": "#F0A35B",
+        "profile_accent_warm": "#F6C48E",
+        "profile_accent_glow": "rgba(240,163,91,0.18)",
+        "profile_accent_border": "rgba(240,163,91,0.34)",
+        "profile_tag_bg": "rgba(240,163,91,0.12)",
+        "profile_tag_text": "#FFE6C8",
+        "profile_tag_border": "rgba(240,163,91,0.24)",
+        # 正文强调色体系
+        "accent": "#C96E2A",
+        "accent_warm": "#E59A57",
+        "accent_glow": "rgba(201,110,42,0.12)",
+        "accent_border": "rgba(201,110,42,0.28)",
         # 标签
-        "tag_bg": "rgba(232,116,12,0.10)",
-        "tag_text": "#E8740C",
-        "tag_border": "rgba(232,116,12,0.30)",
+        "tag_bg": "rgba(201,110,42,0.09)",
+        "tag_text": "#A95C21",
+        "tag_border": "rgba(201,110,42,0.22)",
         # 正文区
-        "bg": "#FFFFFF",
-        "text_body": "#2D2D2D",
-        "text_heading": "#1C1C1E",
-        "text_muted": "#6B6B6B",
-        "section_bg": "#FFF9F3",
-        "border": "#F0E6DA",
-        "link": "#C8640A",
+        "bg": "#FFF9F3",
+        "text_body": "#312A24",
+        "text_heading": "#231A14",
+        "text_muted": "#6E6259",
+        "section_bg": "#FAF0E4",
+        "border": "#ECDAC7",
+        "link": "#B86222",
     },
     "classic": {
-        "name": "经典暖橙",
-        # 画像区 — 暖白底 + 左侧橙色粗边
-        "profile_bg_from": "#FFFAF5",
-        "profile_bg_to": "#FFF5EB",
-        "profile_name_color": "#1C1C1E",
-        "profile_text": "#3D3D3D",
-        "profile_muted": "#6B6B6B",
-        # 橙色体系
-        "accent": "#D4661E",
-        "accent_warm": "#E8891C",
-        "accent_glow": "rgba(212,102,30,0.08)",
-        "accent_border": "rgba(212,102,30,0.25)",
+        "name": "雾金雅白",
+        # 画像区 — 象牙暖白 + 焦糖橙点缀
+        "profile_bg_from": "#FFF6EE",
+        "profile_bg_to": "#F8EBDD",
+        "profile_name_color": "#241A14",
+        "profile_text": "#443730",
+        "profile_muted": "#776860",
+        "profile_accent": "#D9873E",
+        "profile_accent_warm": "#EDB47A",
+        "profile_accent_glow": "rgba(217,135,62,0.14)",
+        "profile_accent_border": "rgba(217,135,62,0.26)",
+        "profile_tag_bg": "rgba(217,135,62,0.10)",
+        "profile_tag_text": "#A25B20",
+        "profile_tag_border": "rgba(217,135,62,0.20)",
+        # 正文强调色体系
+        "accent": "#C86F2D",
+        "accent_warm": "#E5A061",
+        "accent_glow": "rgba(200,111,45,0.10)",
+        "accent_border": "rgba(200,111,45,0.22)",
         # 标签
-        "tag_bg": "rgba(212,102,30,0.08)",
-        "tag_text": "#C25A1A",
-        "tag_border": "rgba(212,102,30,0.22)",
+        "tag_bg": "rgba(200,111,45,0.08)",
+        "tag_text": "#A05A24",
+        "tag_border": "rgba(200,111,45,0.18)",
         # 正文区
-        "bg": "#FFFFFF",
-        "text_body": "#2D2D2D",
-        "text_heading": "#1C1C1E",
-        "text_muted": "#6B6B6B",
-        "section_bg": "#FEFBF7",
-        "border": "#EDE4D9",
-        "link": "#B85518",
+        "bg": "#FFFCF8",
+        "text_body": "#312A24",
+        "text_heading": "#241A14",
+        "text_muted": "#6C6057",
+        "section_bg": "#FCF3E8",
+        "border": "#EDDCC9",
+        "link": "#AF6127",
     },
 }
 
@@ -104,6 +118,14 @@ THEMES = {
 
 def get_css(theme: dict) -> str:
     """生成高端专家级简历 CSS"""
+    profile_accent = theme.get("profile_accent", theme["accent"])
+    profile_accent_warm = theme.get("profile_accent_warm", theme["accent_warm"])
+    profile_accent_glow = theme.get("profile_accent_glow", theme["accent_glow"])
+    profile_accent_border = theme.get("profile_accent_border", theme["accent_border"])
+    profile_tag_bg = theme.get("profile_tag_bg", theme["tag_bg"])
+    profile_tag_text = theme.get("profile_tag_text", theme["tag_text"])
+    profile_tag_border = theme.get("profile_tag_border", theme["tag_border"])
+
     return f"""
     /* ===== 全局基础 ===== */
     @page {{
@@ -127,13 +149,17 @@ def get_css(theme: dict) -> str:
        候选人画像 — 开场第一屏，高端名片式设计
        ============================================================ */
     .profile-snapshot {{
-        background: linear-gradient(160deg, {theme["profile_bg_from"]} 0%, {theme["profile_bg_to"]} 100%);
+        background:
+            radial-gradient(circle at top right, {profile_accent_glow} 0%, transparent 36%),
+            linear-gradient(155deg, {theme["profile_bg_from"]} 0%, {theme["profile_bg_to"]} 100%);
         color: {theme["profile_text"]};
-        padding: 30px 32px 26px;
-        border-radius: 6px;
-        margin-bottom: 24px;
+        padding: 28px 30px 24px;
+        border-radius: 12px;
+        margin-bottom: 26px;
         page-break-inside: avoid;
-        border-left: 5px solid {theme["accent"]};
+        border-left: 4px solid {profile_accent};
+        border: 1px solid {profile_accent_border};
+        box-shadow: 0 18px 38px rgba(118, 64, 22, 0.16);
         position: relative;
         overflow: hidden;
     }}
@@ -142,11 +168,11 @@ def get_css(theme: dict) -> str:
     .profile-snapshot::after {{
         content: "";
         position: absolute;
-        top: -40px;
-        right: -40px;
-        width: 160px;
-        height: 160px;
-        background: radial-gradient(circle, {theme["accent_glow"]} 0%, transparent 70%);
+        top: -54px;
+        right: -30px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, {profile_accent_glow} 0%, transparent 72%);
         border-radius: 50%;
         pointer-events: none;
     }}
@@ -155,45 +181,45 @@ def get_css(theme: dict) -> str:
         color: {theme["profile_name_color"]};
         font-size: 32px;
         font-weight: 800;
-        letter-spacing: 2px;
+        letter-spacing: 1.4px;
         margin-bottom: 2px;
         position: relative;
     }}
 
-    /* 姓名下方橙色装饰线 */
+    /* 姓名下方装饰线 */
     .profile-snapshot h1::after {{
         content: "";
         display: block;
-        width: 48px;
-        height: 3px;
-        background: linear-gradient(to right, {theme["accent"]}, {theme["accent_warm"]});
+        width: 50px;
+        height: 2px;
+        background: linear-gradient(to right, {profile_accent}, {profile_accent_warm});
         border-radius: 2px;
-        margin-top: 8px;
+        margin-top: 10px;
     }}
 
     .profile-snapshot .basic-info {{
         color: {theme["profile_text"]};
         font-size: 13px;
-        margin-top: 10px;
-        margin-bottom: 4px;
-        line-height: 1.7;
+        margin-top: 12px;
+        margin-bottom: 6px;
+        line-height: 1.8;
     }}
 
     .profile-snapshot .basic-info a {{
         display: inline-block;
-        color: {theme["accent"]};
+        color: {theme["profile_name_color"]};
         text-decoration: none;
-        padding: 1px 7px;
-        margin: 1px 2px 1px 0;
+        padding: 1px 9px;
+        margin: 1px 3px 1px 0;
         border-radius: 999px;
-        border: 1px solid {theme["accent_border"]};
-        background: {theme["accent_glow"]};
+        border: 1px solid {profile_accent_border};
+        background: rgba(255, 255, 255, 0.04);
         font-weight: 500;
     }}
 
     .profile-snapshot p {{
-        margin-bottom: 4px;
-        line-height: 1.65;
+        margin-bottom: 5px;
+        line-height: 1.7;
     }}
 
     .profile-snapshot strong {{
@@ -204,31 +230,31 @@ def get_css(theme: dict) -> str:
     /* 技能标签 — 画像区内 */
     .profile-snapshot .skill-tag {{
         display: inline-block;
-        background: {theme["tag_bg"]};
-        color: {theme["tag_text"]};
+        background: {profile_tag_bg};
+        color: {profile_tag_text};
         font-family: "SF Mono", "JetBrains Mono", "Fira Code", "Consolas", monospace;
         font-size: 10.5px;
         font-weight: 500;
         padding: 3px 11px;
         border-radius: 14px;
-        margin: 3px 5px 3px 0;
-        border: 1px solid {theme["tag_border"]};
+        margin: 4px 6px 4px 0;
+        border: 1px solid {profile_tag_border};
         letter-spacing: 0.3px;
     }}
 
     /* 一句话定位 — 画像区的灵魂 */
     .profile-snapshot .tagline {{
-        color: {theme["accent"]};
-        font-size: 14px;
+        color: {theme["profile_name_color"]};
+        font-size: 13.5px;
         font-weight: 500;
         font-style: normal;
-        border-left: 3px solid {theme["accent"]};
-        padding: 8px 0 8px 14px;
-        margin-top: 14px;
-        line-height: 1.55;
-        letter-spacing: 0.5px;
-        background: {theme["accent_glow"]};
-        border-radius: 0 4px 4px 0;
+        border-left: 2px solid {profile_accent};
+        padding: 9px 0 9px 14px;
+        margin-top: 16px;
+        line-height: 1.6;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 0 8px 8px 0;
     }}
 
     /* ============================================================
@@ -431,8 +457,9 @@ def get_css(theme: dict) -> str:
     }}
 
     .profile-snapshot .basic-info a:hover {{
-        border-color: {theme["accent"]};
-        background: {theme["tag_bg"]};
+        color: {theme["profile_name_color"]};
+        border-color: {profile_accent};
+        background: {profile_accent_glow};
     }}
 
     /* ============================================================
@@ -451,10 +478,162 @@ def get_css(theme: dict) -> str:
         height: 96px;
         object-fit: cover;
         border-radius: 50%;
-        border: 3px solid {theme["accent"]};
+        border: 2px solid {profile_accent_border};
         float: right;
         margin: 0 0 10px 16px;
         shape-outside: circle();
+    }}
+
+    /* ============================================================
+       核心优势
+       ============================================================ */
+    .key-strengths-section {{
+        page-break-inside: avoid;
+    }}
+
+    .key-strengths-section .strengths-list {{
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 2px;
+        counter-reset: strength-counter;
+    }}
+
+    .key-strengths-section .strength-item {{
+        counter-increment: strength-counter;
+        position: relative;
+        padding: 12px 14px 12px 52px;
+        margin-bottom: 8px;
+        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
+        border: 1px solid {theme["border"]};
+        border-left: 2px solid {theme["accent_border"]};
+        border-radius: 8px;
+        box-shadow: 0 8px 18px rgba(201,110,42,0.05);
+        break-inside: avoid;
+    }}
+
+    .key-strengths-section .strength-item::before {{
+        content: counter(strength-counter, decimal-leading-zero);
+        position: absolute;
+        left: 14px;
+        top: 12px;
+        color: {theme["accent"]};
+        font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }}
+
+    .key-strengths-section .strength-item::after {{
+        content: "";
+        position: absolute;
+        left: 38px;
+        top: 12px;
+        bottom: 12px;
+        width: 1px;
+        background: linear-gradient(to bottom, {theme["accent_border"]}, transparent);
+    }}
+
+    /* ============================================================
+       工作经历
+       ============================================================ */
+    .work-experience-section {{
+        margin-top: 2px;
+    }}
+
+    .work-experience-section .experience-item {{
+        padding: 14px 15px 13px;
+        margin-bottom: 14px;
+        border: 1px solid {theme["border"]};
+        border-top: 2px solid {theme["accent_border"]};
+        border-radius: 10px;
+        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
+        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
+    }}
+
+    .work-experience-section .experience-heading {{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid {theme["border"]};
+        break-after: avoid;
+    }}
+
+    .work-experience-section .experience-heading-main {{
+        flex: 1;
+        min-width: 0;
+    }}
+
+    .work-experience-section .experience-company {{
+        font-size: 15px;
+        font-weight: 700;
+        color: {theme["text_heading"]};
+        line-height: 1.4;
+    }}
+
+    .work-experience-section .experience-role {{
+        margin-top: 4px;
+        color: {theme["text_muted"]};
+        font-size: 12px;
+        line-height: 1.6;
+    }}
+
+    .work-experience-section .experience-period {{
+        flex: 0 0 auto;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid {theme["accent_border"]};
+        background: {theme["accent_glow"]};
+        color: {theme["text_heading"]};
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }}
+
+    .work-experience-section .experience-summary {{
+        color: {theme["text_muted"]};
+        margin-bottom: 10px;
+        line-height: 1.7;
+    }}
+
+    .work-experience-section .experience-achievements {{
+        margin-bottom: 10px;
+        padding: 10px 12px 8px;
+        border-radius: 8px;
+        background: {theme["section_bg"]};
+        border: 1px solid {theme["border"]};
+    }}
+
+    .work-experience-section .experience-block-label {{
+        display: inline-block;
+        margin-bottom: 6px;
+        padding: 2px 8px;
+        background: {theme["accent_glow"]};
+        border: 1px solid {theme["accent_border"]};
+        border-radius: 999px;
+        color: {theme["text_heading"]};
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }}
+
+    .work-experience-section .experience-achievement-list {{
+        margin-bottom: 0;
+    }}
+
+    .work-experience-section .experience-achievement-list li:last-child {{
+        margin-bottom: 0;
+    }}
+
+    .work-experience-section .experience-tech-stack {{
+        margin-bottom: 0;
+    }}
+
+    .work-experience-section .experience-tech-stack code {{
+        margin: 1px 4px 1px 0;
     }}
 
     /* ============================================================
@@ -470,9 +649,9 @@ def get_css(theme: dict) -> str:
         gap: 12px;
         padding: 9px 12px;
         margin-bottom: 8px;
-        background: {theme["section_bg"]};
+        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
         border: 1px solid {theme["border"]};
-        border-left: 3px solid {theme["accent_border"]};
+        border-left: 3px solid {theme["accent"]};
         border-radius: 6px;
         break-inside: avoid;
     }}
@@ -505,9 +684,11 @@ def get_css(theme: dict) -> str:
     .key-projects-section .project-card {{
         background: linear-gradient(180deg, {theme["section_bg"]} 0%, {theme["bg"]} 100%);
         border: 1px solid {theme["border"]};
+        border-top: 2px solid {theme["accent_border"]};
         border-radius: 8px;
         padding: 14px 15px 12px;
         margin-bottom: 14px;
+        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
     }}
 
     .key-projects-section .project-card h3 {{
@@ -699,6 +880,159 @@ def _wrap_named_h2_sections(html: str, heading_names, class_name: str, transform
     return "".join(parts)
 
 
+
+
+def _transform_key_strengths_section(section_html: str) -> str:
+    section_html = re.sub(
+        r"<ul>\s*(.*?)\s*</ul>",
+        lambda m: '<ul class="strengths-list">' + re.sub(r"<li>(.*?)</li>", r'<li class="strength-item">\1</li>', m.group(1), flags=re.DOTALL) + '</ul>',
+        section_html,
+        count=1,
+        flags=re.DOTALL,
+    )
+    return section_html
+
+
+def _render_lines_as_list(content_html: str, list_html: str = "") -> str:
+    content_html = content_html.strip()
+    list_html = list_html.strip()
+    if list_html:
+        return re.sub(r"<ul", '<ul class="experience-achievement-list"', list_html, count=1)
+
+    lines = [line.strip() for line in re.split(r"<br\s*/?>", content_html) if line.strip()]
+    list_items = []
+    for line in lines:
+        plain_line = _normalize_heading_text(line)
+        if plain_line.startswith("- ") or plain_line.startswith("• "):
+            list_items.append(re.sub(r"^[-•]\s*", "", line).strip())
+        elif list_items:
+            list_items[-1] = f"{list_items[-1]} {line}".strip()
+
+    if list_items:
+        return '<ul class="experience-achievement-list">' + ''.join(f'<li>{item}</li>' for item in list_items) + '</ul>'
+
+    if content_html:
+        return f"<p>{content_html}</p>"
+
+    return ""
+
+
+def _render_experience_tech_stack(content_html: str) -> str:
+    if "<code>" in content_html:
+        rendered = content_html
+    else:
+        parts = [part.strip() for part in content_html.split("·") if part.strip()]
+        rendered = " ".join(f"<code>{part}</code>" for part in parts) if parts else content_html.strip()
+    return (
+        '<p class="experience-tech-stack">'
+        '<span class="experience-block-label">技术栈</span> '
+        f'{rendered}'
+        '</p>'
+    )
+
+
+def _render_experience_heading(title_html: str) -> str:
+    title_text = _strip_tags(title_html).strip()
+    parts = [part.strip() for part in title_text.split("|")]
+    if len(parts) >= 3:
+        company = parts[0]
+        role = parts[1]
+        period = " | ".join(parts[2:])
+        return (
+            '<div class="experience-heading">'
+            '<div class="experience-heading-main">'
+            f'<div class="experience-company">{company}</div>'
+            f'<div class="experience-role">{role}</div>'
+            '</div>'
+            f'<div class="experience-period">{period}</div>'
+            '</div>'
+        )
+    return title_html
+
+
+def _transform_work_experience_entry(entry_html: str) -> str:
+    title_match = re.match(r"\s*(<h3\b[^>]*>.*?</h3>)", entry_html, re.DOTALL)
+    if not title_match:
+        return f'<article class="experience-item">\n{entry_html.strip()}\n</article>'
+
+    title_html = title_match.group(1)
+    body_html = entry_html[title_match.end():].strip()
+    blocks = [_render_experience_heading(title_html)]
+
+    summary_match = re.match(r"\s*(<p>(?!\s*<strong>)(.*?)</p>)", body_html, re.DOTALL)
+    cursor = 0
+    if summary_match:
+        blocks.append(f'<p class="experience-summary">{summary_match.group(2).strip()}</p>')
+        cursor = summary_match.end()
+
+    remaining_html = body_html[cursor:]
+    block_pattern = re.compile(
+        r"<p>\s*<strong>(核心成就|核心贡献|Achievements|Key Achievements|技术栈|Tech Stack)</strong>\s*[：:]?\s*(.*?)</p>(\s*<ul>.*?</ul>)?",
+        re.DOTALL,
+    )
+
+    consumed = 0
+    for match in block_pattern.finditer(remaining_html):
+        prefix = remaining_html[consumed:match.start()].strip()
+        if prefix:
+            blocks.append(prefix)
+
+        label = _normalize_heading_text(match.group(1))
+        content_html = match.group(2)
+        list_html = match.group(3) or ""
+
+        if label in {"核心成就", "核心贡献", "achievements", "key achievements"}:
+            blocks.append(
+                '<section class="experience-achievements">\n'
+                '<div class="experience-block-label">核心成就</div>\n'
+                f'{_render_lines_as_list(content_html, list_html)}\n'
+                '</section>'
+            )
+        else:
+            blocks.append(_render_experience_tech_stack(content_html))
+
+        consumed = match.end()
+
+    suffix = remaining_html[consumed:].strip()
+    if suffix:
+        blocks.append(suffix)
+
+    return '<article class="experience-item">\n' + "\n".join(blocks) + '\n</article>'
+
+
+def _transform_work_experience_section(section_html: str) -> str:
+    heading_match = re.match(r"\s*(<h2\b[^>]*>.*?</h2>)", section_html, re.DOTALL)
+    if not heading_match:
+        return section_html
+
+    heading_html = heading_match.group(1)
+    body_html = section_html[heading_match.end():]
+    trailing_separator = ""
+    trailing_match = re.search(r"(\s*<hr\s*/?>\s*)$", body_html)
+    if trailing_match:
+        trailing_separator = trailing_match.group(1).strip()
+        body_html = body_html[:trailing_match.start()]
+
+    h3_pattern = re.compile(r"<h3\b[^>]*>.*?</h3>", re.DOTALL)
+    entry_matches = list(h3_pattern.finditer(body_html))
+    if not entry_matches:
+        return section_html
+
+    parts = [heading_html]
+    leading = body_html[:entry_matches[0].start()].strip()
+    if leading:
+        parts.append(leading)
+
+    for index, match in enumerate(entry_matches):
+        entry_end = entry_matches[index + 1].start() if index + 1 < len(entry_matches) else len(body_html)
+        parts.append(_transform_work_experience_entry(body_html[match.start():entry_end]))
+
+    if trailing_separator:
+        parts.append(trailing_separator)
+
+    return "\n".join(parts)
+
+
 def _transform_skills_matrix_section(section_html: str) -> str:
     row_pattern = re.compile(r"<p>\s*<strong>(.*?)</strong>\s*[：:]\s*(.*?)</p>", re.DOTALL)
 
@@ -887,9 +1221,21 @@ def enhance_resume_html(html: str) -> str:
 
     html = _wrap_named_h2_sections(
         html,
+        {"核心优势", "key strengths"},
+        "key-strengths-section",
+        _transform_key_strengths_section,
+    )
+    html = _wrap_named_h2_sections(
+        html,
         {"技能矩阵", "skills matrix"},
         "skills-matrix-section",
         _transform_skills_matrix_section,
+    )
+    html = _wrap_named_h2_sections(
+        html,
+        {"工作经历", "work experience"},
+        "work-experience-section",
+        _transform_work_experience_section,
     )
     html = _wrap_named_h2_sections(
         html,
