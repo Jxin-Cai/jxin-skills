@@ -24,10 +24,12 @@ jxin-skills/
 │   │   └── plugin.json
 │   ├── commands/                  # slash command 快捷入口
 │   │   ├── commit.md              # /jxin-coding:commit → git-auto-commit-review
-│   │   └── critic.md              # /jxin-coding:critic → claude-code-critic
+│   │   ├── critic.md              # /jxin-coding:critic → claude-code-critic
+│   │   └── loc.md                 # /jxin-coding:loc → code-loc-counter
 │   └── skills/
 │       ├── git-auto-commit-review/
-│       └── claude-code-critic/
+│       ├── claude-code-critic/
+│       └── code-loc-counter/
 └── writing/                       # 创作工具插件
     ├── .claude-plugin/
     │   └── plugin.json
@@ -53,6 +55,7 @@ jxin-skills/
 |------|------|-------------|
 | `git-auto-commit-review` | Git 提交助手，支持快速提交和深度 CR 提交 | `/jxin-coding:commit` |
 | `claude-code-critic` | 项目/Skill 严苛评审 | `/jxin-coding:critic` |
+| `code-loc-counter` | 统计任意语言项目代码行数，默认排除测试和注释 | `/jxin-coding:loc` |
 
 ### Writing（创作工具）
 

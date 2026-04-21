@@ -28,6 +28,7 @@ Jxin 的 Claude Code 技能集合，分为 **Coding（开发工具）** 和 **Wr
 |------|---------|--------------|------|
 | git-auto-commit-review | `/jxin-coding:commit` | `/jxin-coding:git-auto-commit-review` | Git 提交助手。支持**快速提交**（生成规范 commit message）和**CR 提交**（深度代码审查 + 审查报告 + 提交）两种模式 |
 | claude-code-critic | `/jxin-coding:critic` | `/jxin-coding:claude-code-critic` | 严苛代码评审。以资深工程师视角审查项目或 Skill，输出分级评审报告（Critical / Major / Minor） |
+| code-loc-counter | `/jxin-coding:loc` | `/jxin-coding:code-loc-counter` | 代码行数统计。扫描任意语言项目代码行数，默认排除测试和注释，并输出总代码行数与按语言明细 |
 
 ## Writing 技能一览
 
@@ -48,6 +49,7 @@ Jxin 的 Claude Code 技能集合，分为 **Coding（开发工具）** 和 **Wr
 ```
 /jxin-coding:commit           # 提交代码
 /jxin-coding:critic           # 严苛评审
+/jxin-coding:loc              # 统计代码行数
 
 /jxin-writing:article         # 写一篇技术文章
 /jxin-writing:ppt             # 把文章做成 PPT
@@ -61,6 +63,7 @@ Jxin 的 Claude Code 技能集合，分为 **Coding（开发工具）** 和 **Wr
 ```
 /jxin-coding:git-auto-commit-review
 /jxin-coding:claude-code-critic
+/jxin-coding:code-loc-counter
 
 /jxin-writing:tech-article-writer
 /jxin-writing:ppt-storyboard
