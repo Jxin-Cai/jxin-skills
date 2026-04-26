@@ -9,3 +9,9 @@ __pycache__/
 
 # Node
 node_modules/
+
+# Local skill credentials
+.gpt-image-gen/
+
+# Generated outputs
+image_output/

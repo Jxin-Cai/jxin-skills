@@ -1,0 +1,9 @@
+{
+  "name": "gpt-image-gen",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "bun-types": "latest"
+  }
+}

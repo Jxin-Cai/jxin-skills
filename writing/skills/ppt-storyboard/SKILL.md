@@ -1,6 +1,6 @@
 ---
 name: ppt-storyboard
-description: PPT叙事分镜设计技能。传入文章内容和叙事对象（如管理层、投资方、技术团队），围绕文章内容设计叙述分镜，每个分镜包含一页PPT的内容和图片生成提示词。确认后逐个调用 gemini-image-gen 技能生成图片，最后自动合成 PDF 文件。当用户需要制作PPT、演示文稿、做汇报材料、生成演示分镜时使用此技能。即使用户只说"帮我做个PPT"或"把这篇文章做成演示"，也应该触发此技能。
+description: PPT叙事分镜设计技能。传入文章内容和叙事对象（如管理层、投资方、技术团队），围绕文章内容设计叙述分镜，每个分镜包含一页PPT的内容和图片生成提示词。确认后可选择 GPT 或 Gemini 生成图片，最后自动合成 PDF 文件。当用户需要制作PPT、演示文稿、做汇报材料、生成演示分镜时使用此技能。即使用户只说"帮我做个PPT"或"把这篇文章做成演示"，也应该触发此技能。
 ---
 
 # PPT 叙事分镜设计器
@@ -288,13 +288,21 @@ Global style:
 
 **提示词文件格式要求**：
 
-每个提示词文件的**第一行**必须是明确的图片生成指令，告诉 Gemini 这是一个图片生成请求而非文档分析任务：
+每个提示词文件的**第一行**必须是明确的图片生成指令，具体按图片引擎选择：
+
+**Gemini 引擎**保留固定首行：
 
 ```
 Please generate an image based on the following description:
 ```
 
-这一行之后空一行，再接四层提示词结构。没有这条指令，Gemini 可能把提示词当作文档来分析而不是生成图片。
+**GPT 引擎**使用直接图片生成首行：
+
+```
+Generate an image based on the following description:
+```
+
+这一行之后空一行，再接四层提示词结构。Gemini 没有这条指令时可能把提示词当作文档来分析而不是生成图片；GPT 使用直接图片生成指令即可。
 
 **完整提示词示例**：
 
@@ -408,7 +416,23 @@ path forward; the golden light is the opportunity that's still within reach but 
 
 如果用户选择 Thoughtworks 风格，读取 `references/thoughtworks-style.md` 获取完整的品牌规范。
 
-如果用户没有指定最终输出路径，则默认在**调用该技能的会话当前根目录**下创建 `ppt-<名称>/` 作为输出目录；如果连名称也无法稳定提取，则回退到当前会话根目录下的 `image_output/`，并在其中保存本次 PPT 相关产物。无论哪种情况，都不要把提示词、图片、PDF 或中间产物写入 `ppt-storyboard` 或 `gemini-image-gen` 技能自身目录。
+如果用户没有指定最终输出路径，则默认在**调用该技能的会话当前根目录**下创建 `ppt-<名称>/` 作为输出目录；如果连名称也无法稳定提取，则回退到当前会话根目录下的 `image_output/`，并在其中保存本次 PPT 相关产物。无论哪种情况，都不要把提示词、图片、PDF 或中间产物写入 `ppt-storyboard`、`gemini-image-gen` 或 `gpt-image-gen` 技能自身目录。
+
+### Step 7.5: 选择图片生成引擎
+
+视觉样式确认后，用 AskUserQuestion 询问图片生成引擎：
+
+```
+请选择本次 PPT 的图片生成引擎：
+
+1. GPT（gpt-image-2）- 通过 Responses API 生成，需项目级 host/key 配置
+2. Gemini - 通过现有 Gemini Web API 生成，沿用当前登录流程
+```
+
+选择后记录 `imageProvider`：
+
+- `gpt`：后续调用 `jxin-writing:gpt-image-gen`，如果当前项目没有 `.gpt-image-gen` 配置，先由该技能引导用户提供 host/key 并验证保存
+- `gemini`：后续调用 `jxin-writing:gemini-image-gen`，保持原有流程
 
 ### Step 8: 生成完整提示词文件
 
@@ -419,7 +443,7 @@ path forward; the golden light is the opportunity that's still within reach but 
 **提示词生成检查清单**：
 
 对每个提示词，确认：
-- [ ] 文件第一行是否为 `Please generate an image based on the following description:`？
+- [ ] 文件第一行是否匹配当前图片引擎？Gemini 使用 `Please generate an image based on the following description:`；GPT 使用 `Generate an image based on the following description:`。
 - [ ] 场景描述是否创造了与情感目标匹配的氛围？
 - [ ] 视觉母题是否按计划演变？
 - [ ] 页面主题是否被视觉化为画面中最突出的元素？
@@ -430,7 +454,7 @@ path forward; the golden light is the opportunity that's still within reach but 
 
 ### Step 9: 生成图片
 
-开始逐个分镜调用 `gemini-image-gen` 技能生成图片。
+开始逐个分镜调用已选择的图片生成技能生成图片。
 
 **关键执行步骤**：
 
@@ -439,26 +463,19 @@ path forward; the golden light is the opportunity that's still within reach but 
 3. 在 `images/` 子目录存放生成的图片
 4. 所有输出都必须写入当前会话根目录下的业务输出目录，不要写入 Skill 自身目录
 
-**调用方式**：
+**Gemini 调用方式**：调用技能 `jxin-writing:gemini-image-gen`，传入对应分镜的提示词文件和图片输出路径。
 
-```bash
-# 逐个调用 gemini-image-gen 生成图片
-cd <gemini-image-gen 技能目录>
+**GPT 调用方式**：调用技能 `jxin-writing:gpt-image-gen`，传入对应分镜的提示词文件、图片输出路径和调用会话根目录。
 
-# 第1张
-bun scripts/generate-image.ts -p <prompts/01-cover.md 的绝对路径> -o <images/01.png 的绝对路径>
+**批量生成节奏**：
 
-# 等待 5 秒 + 1-5 秒随机秒数（防风控）
-sleep $((5 + RANDOM % 5 + 1))
-
-# 第2张
-bun scripts/generate-image.ts -p <prompts/02-status-quo.md 的绝对路径> -o <images/02.png 的绝对路径>
-
-# 每生成一张，向用户报告进度
-# ✅ 分镜 1/12 已生成 — 封面「穿越迷雾」
-# ⏳ 等待中...
-# ⏳ 正在生成分镜 2/12 — 现状「效率瓶颈」...
-```
+- 第 1 张：调用已选择的图片生成技能
+- 等待 5 秒 + 1-5 秒随机秒数（防风控/限流）
+- 第 2 张：继续调用已选择的图片生成技能
+- 每生成一张，向用户报告进度：
+  - 分镜 1/12 已生成 — 封面「穿越迷雾」
+  - 等待中...
+  - 正在生成分镜 2/12 — 现状「效率瓶颈」...
 
 **每5张额外等待**：每生成5张后，额外等待 30 秒。
 
@@ -511,7 +528,8 @@ ppt-<名称>/
 
 ## 依赖
 
-- **gemini-image-gen 技能**：用于生成每个分镜的图片
+- **gemini-image-gen 技能**：当选择 Gemini 引擎时用于生成每个分镜的图片
+- **gpt-image-gen 技能**：当选择 GPT 引擎时通过 Responses API 调用 `gpt-image-2` 生成图片
 - **Python 3 + reportlab**：用于将图片合成 PDF（如果没装 reportlab，脚本会自动 pip install）
 - **Pillow**：图片处理
 
