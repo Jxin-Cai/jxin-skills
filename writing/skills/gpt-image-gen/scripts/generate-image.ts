@@ -64,7 +64,7 @@ async function getDefaultImageOutputPath(promptFile: string): Promise<string> {
 }
 
 async function generateImageOnce(options: GenerateOptions): Promise<string> {
-  console.log(`读取提示词: ${options.promptFile}`);
+  console.log(`读取提示词：${options.promptFile}`);
   const prompt = await fs.readFile(options.promptFile, "utf-8");
 
   if (!prompt.trim()) {
@@ -77,15 +77,21 @@ async function generateImageOnce(options: GenerateOptions): Promise<string> {
   const outputDir = path.dirname(outputPath);
   const filename = path.basename(outputPath);
 
-  console.log(`图片输出目录: ${outputDir}`);
-  console.log(`图片文件名: ${filename}`);
-
   const { config, credentials } = await readConfig(options.workspace);
   const size = options.size || config.size;
   const quality = options.quality || config.quality;
   const format = options.format || config.format;
 
-  console.log(`调用 Responses 图片模型: ${config.imageModel}`);
+  console.log(`
+生图计划
+
+渠道：GPT / ${config.imageModel}
+尺寸：${size}
+质量：${quality}
+格式：${format}
+输出：${outputPath}
+`);
+
   const response = await fetch(getEndpoint(config.host), {
     method: "POST",
     headers: {
@@ -138,12 +144,15 @@ async function generateImage(options: GenerateOptions): Promise<string> {
     try {
       const savedPath = await generateImageOnce(options);
       console.log(`
-╔═══════════════════════════════════════════════════════╗
-║   图片生成成功                                        ║
-╚═══════════════════════════════════════════════════════╝
+图片生成完成
 
-提示词: ${options.promptFile}
-图片:   ${savedPath}
+文件：${savedPath}
+提示词：${options.promptFile}
+
+你可以继续：
+- 调整提示词重新生成
+- 换成 Gemini 渠道再试一版
+- 直接使用这张图
 `);
       return savedPath;
     } catch (error) {

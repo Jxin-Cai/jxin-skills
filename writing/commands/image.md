@@ -1,7 +1,7 @@
 ---
 description: 图片生成，可选择 GPT 或 Gemini 渠道
 disable-model-invocation: true
-argument-hint: "[图片提示词] [--gpt|--gemini]"
+argument-hint: "[--gpt|--gemini] [图片提示词]"
 ---
 
 这是统一图片生成入口，请按用户指定或询问后选择图片生成渠道。
