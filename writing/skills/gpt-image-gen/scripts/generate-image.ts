@@ -115,6 +115,7 @@ async function generateViaResponsesApi(
     body: JSON.stringify({
       model: config.imageModel,
       input: prompt,
+      tools: [{ type: "image_generation" }],
       size: opts.size,
       quality: opts.quality,
       output_format: opts.format,

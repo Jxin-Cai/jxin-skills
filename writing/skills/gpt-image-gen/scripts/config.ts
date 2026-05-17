@@ -196,6 +196,7 @@ async function validateViaResponsesApi(config: Config, credentials: Credentials)
     body: JSON.stringify({
       model: config.imageModel,
       input: "Generate a tiny validation PNG image: a simple orange circle on a clean white background, no text.",
+      tools: [{ type: "image_generation" }],
       size: config.size,
       quality: config.quality,
       output_format: config.format,
