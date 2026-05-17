@@ -6,9 +6,6 @@ interface GenerateOptions {
   workspace: string;
   promptFile: string;
   output: string;
-  size?: string;
-  quality?: string;
-  format?: string;
 }
 
 const MAX_RETRIES = 2;
@@ -67,7 +64,7 @@ async function generateViaImagesApi(
   prompt: string,
   config: { host: string; imageModel: string },
   credentials: { apiKey: string },
-  opts: { size: string; quality: string; format: string },
+  n: number,
 ): Promise<Buffer> {
   const response = await fetch(getImagesEndpoint(config.host), {
     method: "POST",
@@ -78,9 +75,7 @@ async function generateViaImagesApi(
     body: JSON.stringify({
       model: config.imageModel,
       prompt,
-      n: 1,
-      size: opts.size,
-      quality: opts.quality,
+      n,
       response_format: "b64_json",
     }),
   });
@@ -103,7 +98,6 @@ async function generateViaResponsesApi(
   prompt: string,
   config: { host: string; imageModel: string },
   credentials: { apiKey: string },
-  opts: { size: string; quality: string; format: string },
 ): Promise<Buffer> {
   const response = await fetch(getResponsesEndpoint(config.host), {
     method: "POST",
@@ -116,9 +110,6 @@ async function generateViaResponsesApi(
       model: config.imageModel,
       input: prompt,
       tools: [{ type: "image_generation" }],
-      size: opts.size,
-      quality: opts.quality,
-      output_format: opts.format,
     }),
   });
 
@@ -151,29 +142,23 @@ async function generateImageOnce(options: GenerateOptions): Promise<string> {
   const outputDir = path.dirname(outputPath);
 
   const { config, credentials } = await readConfig(options.workspace);
-  const size = options.size || config.size;
-  const quality = options.quality || config.quality;
-  const format = options.format || config.format;
 
   console.log(`
 生图计划
 
 渠道：GPT / ${config.imageModel}
-尺寸：${size}
-质量：${quality}
-格式：${format}
 输出：${outputPath}
 `);
 
   let imageBytes: Buffer;
   try {
     console.log("尝试 Images API (POST /v1/images/generations) ...");
-    imageBytes = await generateViaImagesApi(prompt, config, credentials, { size, quality, format });
+    imageBytes = await generateViaImagesApi(prompt, config, credentials, 1);
     console.log("Images API 调用成功");
   } catch (imagesErr) {
     console.log(`Images API 失败：${imagesErr instanceof Error ? imagesErr.message.slice(0, 200) : imagesErr}`);
     console.log("尝试 Responses API (POST /v1/responses) ...");
-    imageBytes = await generateViaResponsesApi(prompt, config, credentials, { size, quality, format });
+    imageBytes = await generateViaResponsesApi(prompt, config, credentials);
     console.log("Responses API 调用成功");
   }
 
@@ -232,9 +217,6 @@ function printUsage(): void {
   --workspace <dir>       项目根目录，用于读取 .gpt-image-gen 配置（默认当前目录）
   -p, --prompt-file <file> 提示词文件路径（必需）
   -o, --output <file>      输出图片路径（可选）
-  --size <size>            图片尺寸（可选，默认配置值）
-  --quality <quality>      图片质量（可选，默认配置值）
-  --format <format>        输出格式（可选，默认配置值）
 
 示例:
   bun scripts/generate-image.ts --workspace /path/to/project -p prompts/cover.md -o images/cover.png`);
@@ -257,9 +239,6 @@ if (import.meta.main) {
       workspace,
       promptFile,
       output,
-      size: getStringArg(args, "size"),
-      quality: getStringArg(args, "quality"),
-      format: getStringArg(args, "format"),
     });
   } catch (error) {
     console.error("错误:", sanitizeText(error instanceof Error ? error.message : error));

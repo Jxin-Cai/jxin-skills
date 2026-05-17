@@ -156,11 +156,8 @@ bun scripts/generate-image.ts \
 - `--workspace`：项目/会话根目录，用于读取 `.gpt-image-gen` 配置
 - `--prompt-file` / `-p`：提示词文件路径（必需）
 - `--output` / `-o`：输出图片路径（可选，默认根据提示词文件位置推断）
-- `--size`：图片尺寸（可选，默认 `1536x1024`，适合 16:9 PPT）
-- `--quality`：图片质量（可选，默认 `auto`）
-- `--format`：输出格式（可选，默认 `png`）
 
-**协议优先级**：脚本内部优先使用 Images API（`POST /v1/images/generations`），如果该端点返回错误，自动 fallback 到 Responses API（`POST /v1/responses`）。调用方无需感知协议切换。
+**协议优先级**：脚本内部优先使用 Images API（`POST /v1/images/generations`，仅传 `model`/`prompt`/`n`/`response_format`），如果该端点返回错误，自动 fallback 到 Responses API（`POST /v1/responses`，传 `model`/`input`/`tools`）。调用方无需感知协议切换。
 
 ### Step 6: 频率控制
 
@@ -181,7 +178,6 @@ bun scripts/generate-image.ts \
 文件：image_output/images/<name>.png
 提示词：image_output/prompts/<name>.md
 渠道：GPT / gpt-image-2
-尺寸：1536x1024
 
 你可以继续：
 - 调整提示词重新生成

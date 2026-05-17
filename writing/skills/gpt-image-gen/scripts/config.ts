@@ -4,9 +4,6 @@ import path from "node:path";
 interface Config {
   host: string;
   imageModel: string;
-  size: string;
-  quality: string;
-  format: string;
 }
 
 interface Credentials {
@@ -14,9 +11,6 @@ interface Credentials {
 }
 
 const DEFAULT_IMAGE_MODEL = "gpt-image-2";
-const DEFAULT_SIZE = "1536x1024";
-const DEFAULT_QUALITY = "auto";
-const DEFAULT_FORMAT = "png";
 
 function parseArgs(args: string[]): Record<string, string | boolean> {
   const parsed: Record<string, string | boolean> = {};
@@ -165,8 +159,6 @@ async function validateViaImagesApi(config: Config, credentials: Credentials): P
       model: config.imageModel,
       prompt: "A simple orange circle on a clean white background, no text.",
       n: 1,
-      size: config.size,
-      quality: config.quality,
       response_format: "b64_json",
     }),
   });
@@ -197,9 +189,6 @@ async function validateViaResponsesApi(config: Config, credentials: Credentials)
       model: config.imageModel,
       input: "Generate a tiny validation PNG image: a simple orange circle on a clean white background, no text.",
       tools: [{ type: "image_generation" }],
-      size: config.size,
-      quality: config.quality,
-      output_format: config.format,
     }),
   });
 
@@ -234,9 +223,6 @@ async function checkConfig(workspace: string): Promise<void> {
     workspace,
     host: config.host,
     imageModel: config.imageModel,
-    size: config.size,
-    quality: config.quality,
-    format: config.format,
     key: redact(credentials.apiKey),
   }, null, 2));
 }
@@ -252,9 +238,6 @@ async function setConfig(args: Record<string, string | boolean>, workspace: stri
   const config: Config = {
     host,
     imageModel: getStringArg(args, "image-model") || DEFAULT_IMAGE_MODEL,
-    size: getStringArg(args, "size") || DEFAULT_SIZE,
-    quality: getStringArg(args, "quality") || DEFAULT_QUALITY,
-    format: getStringArg(args, "format") || DEFAULT_FORMAT,
   };
   const credentials: Credentials = { apiKey };
 
