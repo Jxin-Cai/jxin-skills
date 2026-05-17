@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张三</title>
+    <style>
+    /* ===== 全局基础 ===== */
+    @page {
+        size: A4;
+        margin: 12mm 16mm 14mm 16mm;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei",
+                     -apple-system, "Helvetica Neue", sans-serif;
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: #312A24;
+        background: #FFF9F3;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============================================================
+       候选人画像 — 开场第一屏，高端名片式设计
+       ============================================================ */
+    .profile-snapshot {
+        background:
+            radial-gradient(circle at top right, rgba(240,163,91,0.18) 0%, transparent 36%),
+            linear-gradient(155deg, #2C2018 0%, #473124 100%);
+        color: rgba(251,243,232,0.88);
+        padding: 28px 30px 24px;
+        border-radius: 12px;
+        margin-bottom: 26px;
+        page-break-inside: avoid;
+        border-left: 4px solid #F0A35B;
+        border: 1px solid rgba(240,163,91,0.34);
+        box-shadow: 0 18px 38px rgba(118, 64, 22, 0.16);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 右上角装饰光晕 */
+    .profile-snapshot::after {
+        content: "";
+        position: absolute;
+        top: -54px;
+        right: -30px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(240,163,91,0.18) 0%, transparent 72%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .profile-snapshot h1 {
+        color: #FBF3E8;
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        margin-bottom: 2px;
+        position: relative;
+    }
+
+    /* 姓名下方装饰线 */
+    .profile-snapshot h1::after {
+        content: "";
+        display: block;
+        width: 50px;
+        height: 2px;
+        background: linear-gradient(to right, #F0A35B, #F6C48E);
+        border-radius: 2px;
+        margin-top: 10px;
+    }
+
+    .profile-snapshot .basic-info {
+        color: rgba(251,243,232,0.88);
+        font-size: 13px;
+        margin-top: 12px;
+        margin-bottom: 6px;
+        line-height: 1.8;
+    }
+
+    .profile-snapshot .basic-info a {
+        display: inline-block;
+        color: #FBF3E8;
+        text-decoration: none;
+        padding: 1px 9px;
+        margin: 1px 3px 1px 0;
+        border-radius: 999px;
+        border: 1px solid rgba(240,163,91,0.34);
+        background: rgba(255, 255, 255, 0.04);
+        font-weight: 500;
+    }
+
+    .profile-snapshot p {
+        margin-bottom: 5px;
+        line-height: 1.7;
+    }
+
+    .profile-snapshot strong {
+        color: #FBF3E8;
+        font-weight: 600;
+    }
+
+    /* 技能标签 — 画像区内 */
+    .profile-snapshot .skill-tag {
+        display: inline-block;
+        background: rgba(240,163,91,0.12);
+        color: #FFE6C8;
+        font-family: "SF Mono", "JetBrains Mono", "Fira Code", "Consolas", monospace;
+        font-size: 10.5px;
+        font-weight: 500;
+        padding: 3px 11px;
+        border-radius: 14px;
+        margin: 4px 6px 4px 0;
+        border: 1px solid rgba(240,163,91,0.24);
+        letter-spacing: 0.3px;
+    }
+
+    /* 一句话定位 — 画像区的灵魂 */
+    .profile-snapshot .tagline {
+        color: #FBF3E8;
+        font-size: 13.5px;
+        font-weight: 500;
+        font-style: normal;
+        border-left: 2px solid #F0A35B;
+        padding: 9px 0 9px 14px;
+        margin-top: 16px;
+        line-height: 1.6;
+        letter-spacing: 0.3px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 0 8px 8px 0;
+    }
+
+    /* ============================================================
+       章节标题
+       ============================================================ */
+    h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #231A14;
+        padding-left: 14px;
+        margin-top: 22px;
+        margin-bottom: 10px;
+        page-break-after: avoid;
+        position: relative;
+        letter-spacing: 0.5px;
+    }
+
+    h2::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, #C96E2A, #E59A57);
+        border-radius: 2px;
+    }
+
+    h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #231A14;
+        margin-top: 14px;
+        margin-bottom: 5px;
+        page-break-after: avoid;
+    }
+
+    /* ============================================================
+       正文内容
+       ============================================================ */
+    p {
+        margin-bottom: 5px;
+        line-height: 1.7;
+    }
+
+    strong {
+        color: #231A14;
+        font-weight: 600;
+    }
+
+    /* 加粗数字高亮 — 让量化成就更醒目 */
+    strong em, em strong {
+        color: #C96E2A;
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    /* ============================================================
+       列表
+       ============================================================ */
+    ul, ol {
+        padding-left: 18px;
+        margin-bottom: 6px;
+    }
+
+    li {
+        margin-bottom: 4px;
+        line-height: 1.65;
+    }
+
+    li::marker {
+        color: #C96E2A;
+        font-weight: bold;
+    }
+
+    /* ============================================================
+       行内代码（正文中的技能标签）
+       ============================================================ */
+    code {
+        display: inline-block;
+        background: rgba(201,110,42,0.09);
+        color: #A95C21;
+        font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+        font-size: 10.5px;
+        font-weight: 500;
+        padding: 2px 9px;
+        border-radius: 10px;
+        border: 1px solid rgba(201,110,42,0.22);
+        margin: 1px 2px;
+    }
+
+    /* ============================================================
+       代码块
+       ============================================================ */
+    pre {
+        background: #1E1E1E;
+        color: #D4D4D4;
+        padding: 14px 16px;
+        border-radius: 6px;
+        font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        overflow-x: auto;
+        margin: 8px 0;
+        page-break-inside: avoid;
+        border-left: 3px solid #C96E2A;
+    }
+
+    pre code {
+        background: transparent;
+        color: inherit;
+        border: none;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        font-size: inherit;
+    }
+
+    /* ============================================================
+       引用块
+       ============================================================ */
+    blockquote {
+        border-left: 3px solid #C96E2A;
+        padding: 4px 0 4px 14px;
+        margin: 6px 0;
+        color: #6E6259;
+        font-size: 12px;
+    }
+
+    blockquote p {
+        margin-bottom: 2px;
+    }
+
+    /* ============================================================
+       表格
+       ============================================================ */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 12px;
+    }
+
+    th {
+        background: #FAF0E4;
+        color: #231A14;
+        font-weight: 600;
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 2px solid #C96E2A;
+    }
+
+    td {
+        padding: 6px 12px;
+        border-bottom: 1px solid #ECDAC7;
+    }
+
+    tr:hover td {
+        background: rgba(201,110,42,0.12);
+    }
+
+    /* ============================================================
+       分隔线 — 优雅的渐变
+       ============================================================ */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(201,110,42,0.28),
+            #C96E2A,
+            rgba(201,110,42,0.28),
+            transparent
+        );
+        margin: 18px 0;
+    }
+
+    /* ============================================================
+       链接
+       ============================================================ */
+    a {
+        color: #B86222;
+        text-decoration-line: underline;
+        text-decoration-color: rgba(201,110,42,0.28);
+        text-decoration-thickness: 1.2px;
+        text-underline-offset: 2px;
+        font-weight: 500;
+    }
+
+    a[href^="http"]::after {
+        content: " ↗";
+        font-size: 10px;
+        color: #6E6259;
+    }
+
+    a:hover {
+        color: #C96E2A;
+        text-decoration-color: #C96E2A;
+    }
+
+    .profile-snapshot .basic-info a:hover {
+        color: #FBF3E8;
+        border-color: #F0A35B;
+        background: rgba(240,163,91,0.18);
+    }
+
+    /* ============================================================
+       图片
+       ============================================================ */
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 8px 0;
+    }
+
+    /* 画像区头像 — 右上角圆形头像 */
+    .profile-snapshot img {
+        width: 96px;
+        height: 96px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid rgba(240,163,91,0.34);
+        float: right;
+        margin: 0 0 10px 16px;
+        shape-outside: circle();
+    }
+
+    /* ============================================================
+       核心优势
+       ============================================================ */
+    .key-strengths-section {
+        page-break-inside: avoid;
+    }
+
+    .key-strengths-section .strengths-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 2px;
+        counter-reset: strength-counter;
+    }
+
+    .key-strengths-section .strength-item {
+        counter-increment: strength-counter;
+        position: relative;
+        padding: 12px 14px 12px 52px;
+        margin-bottom: 8px;
+        background: linear-gradient(180deg, #FFF9F3 0%, #FAF0E4 100%);
+        border: 1px solid #ECDAC7;
+        border-left: 2px solid rgba(201,110,42,0.28);
+        border-radius: 8px;
+        box-shadow: 0 8px 18px rgba(201,110,42,0.05);
+        break-inside: avoid;
+    }
+
+    .key-strengths-section .strength-item::before {
+        content: counter(strength-counter, decimal-leading-zero);
+        position: absolute;
+        left: 14px;
+        top: 12px;
+        color: #C96E2A;
+        font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }
+
+    .key-strengths-section .strength-item::after {
+        content: "";
+        position: absolute;
+        left: 38px;
+        top: 12px;
+        bottom: 12px;
+        width: 1px;
+        background: linear-gradient(to bottom, rgba(201,110,42,0.28), transparent);
+    }
+
+    /* ============================================================
+       工作经历
+       ============================================================ */
+    .work-experience-section {
+        margin-top: 2px;
+    }
+
+    .work-experience-section .experience-item {
+        padding: 14px 15px 13px;
+        margin-bottom: 14px;
+        border: 1px solid #ECDAC7;
+        border-top: 2px solid rgba(201,110,42,0.28);
+        border-radius: 10px;
+        background: linear-gradient(180deg, #FFF9F3 0%, #FAF0E4 100%);
+        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
+    }
+
+    .work-experience-section .experience-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ECDAC7;
+        break-after: avoid;
+    }
+
+    .work-experience-section .experience-heading-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .work-experience-section .experience-company {
+        font-size: 15px;
+        font-weight: 700;
+        color: #231A14;
+        line-height: 1.4;
+    }
+
+    .work-experience-section .experience-role {
+        margin-top: 4px;
+        color: #6E6259;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .work-experience-section .experience-period {
+        flex: 0 0 auto;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(201,110,42,0.28);
+        background: rgba(201,110,42,0.12);
+        color: #231A14;
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }
+
+    .work-experience-section .experience-summary {
+        color: #6E6259;
+        margin-bottom: 10px;
+        line-height: 1.7;
+    }
+
+    .work-experience-section .experience-achievements {
+        margin-bottom: 10px;
+        padding: 10px 12px 8px;
+        border-radius: 8px;
+        background: #FAF0E4;
+        border: 1px solid #ECDAC7;
+    }
+
+    .work-experience-section .experience-block-label {
+        display: inline-block;
+        margin-bottom: 6px;
+        padding: 2px 8px;
+        background: rgba(201,110,42,0.12);
+        border: 1px solid rgba(201,110,42,0.28);
+        border-radius: 999px;
+        color: #231A14;
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .work-experience-section .experience-achievement-list {
+        margin-bottom: 0;
+    }
+
+    .work-experience-section .experience-achievement-list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .work-experience-section .experience-tech-stack {
+        margin-bottom: 0;
+    }
+
+    .work-experience-section .experience-tech-stack code {
+        margin: 1px 4px 1px 0;
+    }
+
+    /* ============================================================
+       技能矩阵
+       ============================================================ */
+    .skills-matrix-section {
+        page-break-inside: avoid;
+    }
+
+    .skills-matrix-section .skills-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 9px 12px;
+        margin-bottom: 8px;
+        background: linear-gradient(180deg, #FFF9F3 0%, #FAF0E4 100%);
+        border: 1px solid #ECDAC7;
+        border-left: 3px solid #C96E2A;
+        border-radius: 6px;
+        break-inside: avoid;
+    }
+
+    .skills-matrix-section .skills-label {
+        flex: 0 0 100px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #231A14;
+        line-height: 1.7;
+    }
+
+    .skills-matrix-section .skills-items {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.7;
+    }
+
+    .skills-matrix-section .skills-row code {
+        margin: 1px 4px 1px 0;
+    }
+
+    /* ============================================================
+       代表项目
+       ============================================================ */
+    .key-projects-section {
+        margin-top: 2px;
+    }
+
+    .key-projects-section .project-card {
+        background: linear-gradient(180deg, #FAF0E4 0%, #FFF9F3 100%);
+        border: 1px solid #ECDAC7;
+        border-top: 2px solid rgba(201,110,42,0.28);
+        border-radius: 8px;
+        padding: 14px 15px 12px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
+    }
+
+    .key-projects-section .project-card h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #ECDAC7;
+        break-after: avoid;
+    }
+
+    .key-projects-section .project-block {
+        margin-bottom: 10px;
+    }
+
+    .key-projects-section .project-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .key-projects-section .project-block-label {
+        display: inline-block;
+        margin-bottom: 5px;
+        padding: 2px 8px;
+        background: rgba(201,110,42,0.12);
+        border: 1px solid rgba(201,110,42,0.28);
+        border-radius: 999px;
+        color: #231A14;
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .key-projects-section .project-block p {
+        margin-bottom: 0;
+    }
+
+    .key-projects-section .project-block ul {
+        margin-top: 4px;
+        margin-bottom: 0;
+    }
+
+    .key-projects-section .project-result {
+        border-left: 3px solid rgba(201,110,42,0.28);
+        padding-left: 10px;
+    }
+
+    .key-projects-section .project-tech-stack code {
+        margin: 1px 4px 1px 0;
+    }
+
+    /* ============================================================
+       打印适配
+       ============================================================ */
+    @media print {
+        body {
+            margin: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .profile-snapshot {
+            break-inside: avoid;
+            -webkit-print-color-adjust: exact !important;
+        }
+        h2, h3 { break-after: avoid; }
+        li { break-inside: avoid; }
+        a {
+            color: #B86222;
+        }
+        a[href^="http"]::after {
+            color: #6E6259;
+        }
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad: true, theme: 'dark'});</script>
+</head>
+<body>
+<div class="profile-snapshot">
+<h1 id="_1">张三</h1>
+<div class="basic-info">32岁 · 硕士/浙江大学计算机科学 · 10年经验 · 资深Java架构师<br />
+📱 138-xxxx-xxxx · 📧 <a href="mailto:zhangsan@email.com">zhangsan@email.com</a> · 🔗 <a href="https://github.com/zhangsan">github.com/zhangsan</a></div>
+<p><strong>擅长行业</strong>：金融科技 · 电子商务</p>
+<p><strong>公司履历</strong>：蚂蚁集团(4年) → 美团(3年) → 字节跳动(3年，至今)</p>
+<p><strong>核心技能</strong>：<span class="skill-tag">Java</span> <span class="skill-tag">Spring Cloud</span> <span class="skill-tag">Kubernetes</span> <span class="skill-tag">微服务架构</span> <span class="skill-tag">高并发设计</span> <span class="skill-tag">分布式事务</span> <span class="skill-tag">DDD</span> <span class="skill-tag">团队管理</span></p>
+<div class="tagline">「10年Java架构师，在蚂蚁、美团、字节主导过3个千万级用户系统从0到1，擅长高并发架构设计与大规模团队技术体系建设」</div>
+</div>
+<hr />
+<section class="key-strengths-section">
+<h2 id="_2">核心优势</h2>
+<ul class="strengths-list"><li class="strength-item">主导设计日均处理 <strong>2000万+</strong> 请求的分布式交易系统，系统可用性达 <strong>99.99%</strong></li>
+<li class="strength-item">带领 <strong>12人</strong> 技术团队从 0 到 1 交付智能风控平台，上线后欺诈率降低 <strong>67%</strong></li>
+<li class="strength-item">推动团队从传统单体架构迁移至微服务，发布效率提升 <strong>300%</strong>，故障恢复时间缩短 <strong>80%</strong></li>
+<li class="strength-item">沉淀分布式架构方法论，在团队内培养出 <strong>3名</strong> 高级架构师</li>
+<li class="strength-item">技术博客累计 <strong>15万+</strong> 阅读量，QCon/ArchSummit 受邀演讲 <strong>4次</strong></li></ul>
+<hr />
+</section>
+<section class="skills-matrix-section">
+<h2 id="_3">技能矩阵</h2>
+<div class="skills-row"><span class="skills-label">编程语言</span><span class="skills-items">Java (精通) · Python (熟练) · Go (熟悉) · TypeScript (熟悉)</span></div>
+<div class="skills-row"><span class="skills-label">框架 &amp; 中间件</span><span class="skills-items">Spring Boot · Spring Cloud · MyBatis-Plus · Redis · Kafka · RocketMQ · Elasticsearch · Dubbo</span></div>
+<div class="skills-row"><span class="skills-label">数据库</span><span class="skills-items">MySQL · PostgreSQL · MongoDB · TiDB · ClickHouse</span></div>
+<div class="skills-row"><span class="skills-label">云原生 &amp; DevOps</span><span class="skills-items">Kubernetes · Docker · Helm · Jenkins · GitLab CI · Prometheus · Grafana · SkyWalking</span></div>
+<div class="skills-row"><span class="skills-label">架构能力</span><span class="skills-items">微服务架构 · DDD领域驱动设计 · CQRS · 分布式事务(Seata) · 高并发设计 · 系统容量规划</span></div>
+<div class="skills-row"><span class="skills-label">AI &amp; 新技术</span><span class="skills-items">LLM应用开发 · RAG · Prompt Engineering · LangChain · 向量数据库</span></div>
+<hr />
+</section>
+<section class="work-experience-section">
+<h2 id="_4">工作经历</h2>
+<article class="experience-item">
+<div class="experience-heading"><div class="experience-heading-main"><div class="experience-company">字节跳动</div><div class="experience-role">架构师/技术负责人</div></div><div class="experience-period">2022.03 - 至今</div></div>
+<p class="experience-summary">字节跳动是全球领先的互联网科技公司，旗下产品包括抖音、TikTok等。</p>
+<section class="experience-achievements">
+<div class="experience-block-label">核心成就</div>
+<ul class="experience-achievement-list"><li>主导电商交易系统架构升级，将单体应用拆分为 <strong>15个</strong> 微服务，支撑日均 <strong>2000万+</strong> 订单处理</li><li>设计并落地全链路灰度发布方案，将新功能上线风险降低 <strong>90%</strong>，发布频率从周级提升至日级</li><li>搭建统一的技术中台，抽象出 <strong>8个</strong> 通用能力组件，被 <strong>5个</strong> 业务线复用</li><li>推动引入 AI 代码审查工具，团队代码质量评分提升 <strong>35%</strong></li></ul>
+</section>
+<p class="experience-tech-stack"><span class="experience-block-label">技术栈</span> <code>Java</code> <code>Spring Cloud</code> <code>Kubernetes</code> <code>Kafka</code> <code>TiDB</code> <code>Redis</code></p>
+</article>
+<article class="experience-item">
+<div class="experience-heading"><div class="experience-heading-main"><div class="experience-company">美团</div><div class="experience-role">高级工程师/技术专家</div></div><div class="experience-period">2019.01 - 2022.02</div></div>
+<p class="experience-summary">美团是中国领先的生活服务电子商务平台。</p>
+<section class="experience-achievements">
+<div class="experience-block-label">核心成就</div>
+<ul class="experience-achievement-list"><li>从 0 到 1 搭建智能风控平台，日均处理 <strong>500万+</strong> 交易风险评估，欺诈率降低 <strong>67%</strong></li><li>优化核心支付链路性能，P99 延迟从 <strong>800ms</strong> 降至 <strong>120ms</strong>，QPS 提升 <strong>5倍</strong></li><li>设计分布式ID生成方案（基于Snowflake改进），支撑全公司 <strong>日均10亿+</strong> ID生成需求</li></ul>
+</section>
+<p class="experience-tech-stack"><span class="experience-block-label">技术栈</span> <code>Java</code> <code>Spring Boot</code> <code>Dubbo</code> <code>MySQL</code> <code>Redis</code> <code>Elasticsearch</code></p>
+</article>
+<article class="experience-item">
+<div class="experience-heading"><div class="experience-heading-main"><div class="experience-company">蚂蚁集团</div><div class="experience-role">Java开发工程师 → 高级工程师</div></div><div class="experience-period">2015.07 - 2018.12</div></div>
+<p class="experience-summary">蚂蚁集团是全球领先的金融科技公司，旗下产品包括支付宝等。</p>
+<section class="experience-achievements">
+<div class="experience-block-label">核心成就</div>
+<ul class="experience-achievement-list"><li>参与支付宝核心交易系统开发，系统支撑 <strong>双十一 54.4万笔/秒</strong> 峰值处理</li><li>负责资金核对系统重构，将日终对账时间从 <strong>4小时</strong> 缩短至 <strong>30分钟</strong></li><li>获得蚂蚁集团年度技术突破奖</li></ul>
+</section>
+<p class="experience-tech-stack"><span class="experience-block-label">技术栈</span> <code>Java</code> <code>SOFA</code> <code>OceanBase</code> <code>分布式事务</code></p>
+</article>
+<hr />
+</section>
+<section class="key-projects-section">
+<h2 id="_5">代表项目</h2>
+<article class="project-card">
+<h3 id="_6">电商交易系统架构升级（字节跳动）</h3>
+<div class="project-block project-background">
+<div class="project-block-label">背景</div>
+<p>原有单体交易系统无法支撑业务快速增长，峰值期间频繁出现性能瓶颈和级联故障。</p>
+</div>
+<div class="project-block project-task">
+<div class="project-block-label">任务</div>
+<p>作为架构师，负责整体架构设计、技术选型和落地推进，带领12人团队完成迁移。</p>
+</div>
+<div class="project-block project-action">
+<div class="project-block-label">行动</div>
+<ul>
+<li>采用 DDD 方法论进行领域建模，将交易系统拆分为订单、支付、库存、物流等 15 个限界上下文</li>
+<li>设计基于 Kafka 的事件驱动架构，实现服务间解耦和最终一致性</li>
+<li>引入 Kubernetes + Istio 服务网格，实现全链路灰度和流量管控</li>
+<li>建立完善的可观测性体系（Prometheus + Grafana + SkyWalking），实现故障 5 分钟内定位</li>
+</ul>
+</div>
+<div class="project-block project-result">
+<div class="project-block-label">结果</div>
+<ul>
+<li>系统支撑日均 2000万+ 订单，峰值 QPS 达 50000+</li>
+<li>系统可用性从 99.9% 提升至 99.99%</li>
+<li>发布频率从每周 1 次提升至每天 3-5 次</li>
+<li>故障恢复时间从 30 分钟缩短至 5 分钟</li>
+</ul>
+</div>
+<div class="project-block project-tech-stack">
+<div class="project-block-label">技术栈</div>
+<p><code>Java</code> <code>Spring Cloud</code> <code>Kubernetes</code> <code>Istio</code> <code>Kafka</code> <code>TiDB</code> <code>Redis</code> <code>SkyWalking</code></p>
+</div>
+</article>
+<article class="project-card">
+<h3 id="_7">智能风控平台（美团）</h3>
+<div class="project-block project-background">
+<div class="project-block-label">背景</div>
+<p>美团支付业务快速增长，传统规则引擎无法应对日益复杂的欺诈手段。</p>
+</div>
+<div class="project-block project-task">
+<div class="project-block-label">任务</div>
+<p>作为技术负责人，从 0 到 1 设计并交付智能风控平台。</p>
+</div>
+<div class="project-block project-action">
+<div class="project-block-label">行动</div>
+<ul>
+<li>设计多层风控架构：实时规则引擎 + 机器学习模型 + 人工审核三层联动</li>
+<li>实现毫秒级风险评估（P99 &lt; 50ms），基于 Flink 构建实时特征计算平台</li>
+<li>对接 20+ 外部数据源，建立用户画像和设备指纹体系</li>
+</ul>
+</div>
+<div class="project-block project-result">
+<div class="project-block-label">结果</div>
+<ul>
+<li>日均处理 500万+ 交易风险评估</li>
+<li>欺诈率降低 67%，误拒率控制在 0.1% 以下</li>
+<li>每年为公司挽回潜在损失超 <strong>2亿元</strong></li>
+</ul>
+</div>
+<div class="project-block project-tech-stack">
+<div class="project-block-label">技术栈</div>
+<p><code>Java</code> <code>Flink</code> <code>Redis</code> <code>Elasticsearch</code> <code>机器学习</code> <code>Drools</code></p>
+</div>
+</article>
+<hr />
+</section>
+<h2 id="_8">技术影响力</h2>
+<ul>
+<li><strong>技术博客</strong>：掘金/InfoQ 签约作者，累计 <strong>15万+</strong> 阅读量</li>
+<li>《深入理解JVM垃圾回收机制》系列（5万+ 阅读）</li>
+<li>《DDD实战：从理论到落地》（3万+ 阅读）</li>
+<li>《微服务架构演进之路》系列（4万+ 阅读）</li>
+<li><strong>技术演讲</strong>：</li>
+<li>2024 QCon 北京《大规模微服务治理实践》</li>
+<li>2023 ArchSummit 深圳《DDD在电商交易系统中的工程实践》</li>
+<li>2023 GopherChina《Go在高性能网关中的应用》</li>
+<li>2022 美团技术沙龙《智能风控系统架构演进》</li>
+<li><strong>开源贡献</strong>：Apache Dubbo Contributor（贡献 5 个 PR），个人开源项目 <strong>800+ Stars</strong></li>
+</ul>
+<hr />
+<h2 id="_9">教育背景</h2>
+<p><strong>浙江大学</strong> | 硕士 · 计算机科学与技术 | 2013 - 2015</p>
+<p><strong>浙江大学</strong> | 学士 · 软件工程 | 2009 - 2013</p>
+</body>
+</html>
