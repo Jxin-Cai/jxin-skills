@@ -60,7 +60,12 @@ function getCredentialsPath(workspace: string): string {
   return path.join(getConfigDir(workspace), "credentials.json");
 }
 
-function getEndpoint(host: string): string {
+function getImagesEndpoint(host: string): string {
+  const normalized = host.replace(/\/+$/, "");
+  return normalized.endsWith("/v1") ? `${normalized}/images/generations` : `${normalized}/v1/images/generations`;
+}
+
+function getResponsesEndpoint(host: string): string {
   const normalized = host.replace(/\/+$/, "");
   return normalized.endsWith("/v1") ? `${normalized}/responses` : `${normalized}/v1/responses`;
 }
@@ -149,8 +154,39 @@ async function ensurePrivateConfigDir(workspace: string): Promise<void> {
   await fs.writeFile(path.join(dir, ".gitignore"), "*\n!.gitignore\n", { mode: 0o600 });
 }
 
-async function validateConfig(config: Config, credentials: Credentials): Promise<{ bytes: number; status?: string }> {
-  const response = await fetch(getEndpoint(config.host), {
+async function validateViaImagesApi(config: Config, credentials: Credentials): Promise<{ bytes: number; api: "images" }> {
+  const response = await fetch(getImagesEndpoint(config.host), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${credentials.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: config.imageModel,
+      prompt: "A simple orange circle on a clean white background, no text.",
+      n: 1,
+      size: config.size,
+      quality: config.quality,
+      response_format: "b64_json",
+    }),
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`Images API 验证失败：HTTP ${response.status} ${sanitizeText(text, credentials.apiKey).slice(0, 1200)}`);
+  }
+
+  const payload = JSON.parse(text);
+  const b64 = payload?.data?.[0]?.b64_json;
+  if (!b64) {
+    throw new Error(`Images API 未返回图片数据：${sanitizeText(text, credentials.apiKey).slice(0, 1200)}`);
+  }
+
+  return { bytes: Buffer.from(b64, "base64").length, api: "images" };
+}
+
+async function validateViaResponsesApi(config: Config, credentials: Credentials): Promise<{ bytes: number; api: "responses"; status?: string }> {
+  const response = await fetch(getResponsesEndpoint(config.host), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${credentials.apiKey}`,
@@ -178,7 +214,16 @@ async function validateConfig(config: Config, credentials: Credentials): Promise
     throw new Error(`Responses API 未返回 image_generation_call：${sanitizeText(text, credentials.apiKey).slice(0, 1200)}`);
   }
 
-  return { bytes: Buffer.from(imageCall.result, "base64").length, status: imageCall.status };
+  return { bytes: Buffer.from(imageCall.result, "base64").length, api: "responses", status: imageCall.status };
+}
+
+async function validateConfig(config: Config, credentials: Credentials): Promise<{ bytes: number; api: string; status?: string }> {
+  try {
+    return await validateViaImagesApi(config, credentials);
+  } catch (imagesErr) {
+    console.log(`Images API 验证失败，尝试 Responses API：${imagesErr instanceof Error ? imagesErr.message.slice(0, 200) : imagesErr}`);
+    return await validateViaResponsesApi(config, credentials);
+  }
 }
 
 async function checkConfig(workspace: string): Promise<void> {
@@ -266,4 +311,4 @@ if (import.meta.main) {
   }
 }
 
-export { getEndpoint, parseResponseText, findImageCall, readConfig, redact, sanitizeText, type Config, type Credentials };
+export { getImagesEndpoint, getResponsesEndpoint, parseResponseText, findImageCall, readConfig, redact, sanitizeText, type Config, type Credentials };

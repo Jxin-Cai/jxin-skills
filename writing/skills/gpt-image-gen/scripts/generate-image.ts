@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { findImageCall, getEndpoint, parseResponseText, readConfig, sanitizeText } from "./config.js";
+import { findImageCall, getImagesEndpoint, getResponsesEndpoint, parseResponseText, readConfig, sanitizeText } from "./config.js";
 
 interface GenerateOptions {
   workspace: string;
@@ -63,6 +63,79 @@ async function getDefaultImageOutputPath(promptFile: string): Promise<string> {
   return path.join(process.cwd(), "image_output", "images", `${promptBasename}.png`);
 }
 
+async function generateViaImagesApi(
+  prompt: string,
+  config: { host: string; imageModel: string },
+  credentials: { apiKey: string },
+  opts: { size: string; quality: string; format: string },
+): Promise<Buffer> {
+  const response = await fetch(getImagesEndpoint(config.host), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${credentials.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: config.imageModel,
+      prompt,
+      n: 1,
+      size: opts.size,
+      quality: opts.quality,
+      response_format: "b64_json",
+    }),
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`Images API 请求失败：HTTP ${response.status} ${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
+  }
+
+  const payload = JSON.parse(text);
+  const b64 = payload?.data?.[0]?.b64_json;
+  if (!b64) {
+    throw new Error(`Images API 未返回图片数据：${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
+  }
+
+  return Buffer.from(b64, "base64");
+}
+
+async function generateViaResponsesApi(
+  prompt: string,
+  config: { host: string; imageModel: string },
+  credentials: { apiKey: string },
+  opts: { size: string; quality: string; format: string },
+): Promise<Buffer> {
+  const response = await fetch(getResponsesEndpoint(config.host), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${credentials.apiKey}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      model: config.imageModel,
+      input: prompt,
+      size: opts.size,
+      quality: opts.quality,
+      output_format: opts.format,
+    }),
+  });
+
+  const text = await response.text();
+  const payload = parseResponseText(text);
+
+  if (!response.ok) {
+    throw new Error(`Responses API 请求失败：HTTP ${response.status} ${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
+  }
+
+  const imageCall = findImageCall(payload);
+  if (!imageCall) {
+    throw new Error(`Responses API 未返回 image_generation_call：${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
+  }
+
+  return Buffer.from(imageCall.result, "base64");
+}
+
 async function generateImageOnce(options: GenerateOptions): Promise<string> {
   console.log(`读取提示词：${options.promptFile}`);
   const prompt = await fs.readFile(options.promptFile, "utf-8");
@@ -75,7 +148,6 @@ async function generateImageOnce(options: GenerateOptions): Promise<string> {
     ? options.output
     : path.resolve(process.cwd(), options.output);
   const outputDir = path.dirname(outputPath);
-  const filename = path.basename(outputPath);
 
   const { config, credentials } = await readConfig(options.workspace);
   const size = options.size || config.size;
@@ -92,35 +164,18 @@ async function generateImageOnce(options: GenerateOptions): Promise<string> {
 输出：${outputPath}
 `);
 
-  const response = await fetch(getEndpoint(config.host), {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${credentials.apiKey}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      model: config.imageModel,
-      input: prompt,
-      size,
-      quality,
-      output_format: format,
-    }),
-  });
-
-  const text = await response.text();
-  const payload = parseResponseText(text);
-
-  if (!response.ok) {
-    throw new Error(`Responses API 请求失败：HTTP ${response.status} ${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
+  let imageBytes: Buffer;
+  try {
+    console.log("尝试 Images API (POST /v1/images/generations) ...");
+    imageBytes = await generateViaImagesApi(prompt, config, credentials, { size, quality, format });
+    console.log("Images API 调用成功");
+  } catch (imagesErr) {
+    console.log(`Images API 失败：${imagesErr instanceof Error ? imagesErr.message.slice(0, 200) : imagesErr}`);
+    console.log("尝试 Responses API (POST /v1/responses) ...");
+    imageBytes = await generateViaResponsesApi(prompt, config, credentials, { size, quality, format });
+    console.log("Responses API 调用成功");
   }
 
-  const imageCall = findImageCall(payload);
-  if (!imageCall) {
-    throw new Error(`Responses API 未返回 image_generation_call：${sanitizeText(text, credentials.apiKey).slice(0, 1600)}`);
-  }
-
-  const imageBytes = Buffer.from(imageCall.result, "base64");
   if (imageBytes.length === 0) {
     throw new Error("图片结果为空");
   }

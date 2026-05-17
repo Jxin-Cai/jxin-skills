@@ -1,15 +1,16 @@
 ---
 name: gpt-image-gen
-description: 基于 GPT Responses 协议的图片生成技能。传入图片提示词和样式要求，通过项目级 host/key 调用 gpt-image-2 生成图片。当用户需要使用 GPT 生成插图、封面、海报、PPT 分镜图片时使用此技能；也适用于其他技能（如 ppt-storyboard）内部调用。
+description: 基于 GPT 的图片生成技能。传入图片提示词和样式要求，通过项目级 host/key 调用 gpt-image-2 生成图片。优先使用 OpenAI Images API（POST /v1/images/generations），失败后自动 fallback 到 Responses API。当用户需要使用 GPT 生成插图、封面、海报、PPT 分镜图片时使用此技能；也适用于其他技能（如 ppt-storyboard）内部调用。
 ---
 
 # GPT 图片生成器
 
-通过 Responses API 调用 `gpt-image-2` 生成图片。设计为既可被用户直接调用，也可被其他技能（如 PPT 叙事分镜技能）程序化调用。
+通过 OpenAI API 调用 `gpt-image-2` 生成图片。优先走 Images API（`/v1/images/generations`），不可用时自动 fallback 到 Responses API（`/v1/responses`）。设计为既可被用户直接调用，也可被其他技能（如 PPT 叙事分镜技能）程序化调用。
 
 ## 核心能力
 
 - 接收提示词 + 样式要求，调用 GPT 图片模型生成 PNG
+- 双协议支持：优先 Images API，自动 fallback Responses API
 - 首次使用时保存项目级 host/key 配置
 - 后续同一项目自动复用配置
 - 支持指定输出路径，默认写入当前会话根目录的 `image_output/`
@@ -39,10 +40,10 @@ bun scripts/config.ts --check --workspace <项目根目录绝对路径>
 
 如果配置不存在，必须引导用户提供：
 
-1. **host**：Responses API 服务地址，例如 `https://example.com` 或 `https://example.com/v1`
+1. **host**：API 服务地址，例如 `https://api.openai.com` 或 `https://example.com/v1`
 2. **key**：API key
 
-拿到 host/key 后，先验证再保存：
+拿到 host/key 后，先验证再保存（验证时优先尝试 Images API，失败后自动尝试 Responses API）：
 
 ```bash
 bun scripts/config.ts \
@@ -159,6 +160,8 @@ bun scripts/generate-image.ts \
 - `--quality`：图片质量（可选，默认 `auto`）
 - `--format`：输出格式（可选，默认 `png`）
 
+**协议优先级**：脚本内部优先使用 Images API（`POST /v1/images/generations`），如果该端点返回错误，自动 fallback 到 Responses API（`POST /v1/responses`）。调用方无需感知协议切换。
+
 ### Step 6: 频率控制
 
 连续调用外部生图服务可能遇到限流。执行频率控制策略：
@@ -210,10 +213,22 @@ bun scripts/config.ts --set --workspace <项目根目录绝对路径> --host <ho
 bun scripts/config.ts --check --workspace <项目根目录绝对路径>
 ```
 
+## 样式参考
+
+生成提示词时可参考以下预设样式（详见 `references/` 目录）：
+
+| 风格 | 描述 | 适用场景 |
+|------|------|----------|
+| `obsidian` | 手绘知识风格 | 笔记、知识管理 |
+| `notion` | 现代SaaS风格 | 产品介绍、专业文档 |
+| `minimal` | 极简主义 | 简洁设计 |
+| `chalkboard` | 黑板风格 | 教学、演示 |
+| `thoughtworks` | 企业咨询风格 | 企业级PPT、技术方案 |
+
 ## 技术细节
 
 - 运行环境：需要 Bun 运行时
-- 协议：Responses API
+- 协议：优先 Images API（`/v1/images/generations`），fallback Responses API（`/v1/responses`）
 - 默认模型：`gpt-image-2`
 - 输出格式：PNG
 - 配置范围：项目级 `.gpt-image-gen/`
