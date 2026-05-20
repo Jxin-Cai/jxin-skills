@@ -739,6 +739,28 @@ def get_css(theme: dict) -> str:
     }}
 
     /* ============================================================
+       通用章节卡片
+       ============================================================ */
+    .resume-section {{
+        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
+        border: 1px solid {theme["border"]};
+        border-radius: 10px;
+        padding: 18px 20px 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 18px rgba(201,110,42,0.04);
+    }}
+
+    .resume-section > h2 {{
+        margin-top: 0;
+    }}
+
+    /* 嵌套子卡片减少外层 padding 冲突 */
+    .resume-section .experience-item,
+    .resume-section .project-card {{
+        box-shadow: none;
+    }}
+
+    /* ============================================================
        打印适配
        ============================================================ */
     @media print {{
@@ -748,6 +770,10 @@ def get_css(theme: dict) -> str:
             print-color-adjust: exact !important;
         }}
         .profile-snapshot {{
+            break-inside: avoid;
+            -webkit-print-color-adjust: exact !important;
+        }}
+        .resume-section {{
             break-inside: avoid;
             -webkit-print-color-adjust: exact !important;
         }}
@@ -873,7 +899,7 @@ def _wrap_named_h2_sections(html: str, heading_names, class_name: str, transform
             section_html = transform(section_html)
 
         parts.append(html[cursor:match.start()])
-        parts.append(f'<section class="{class_name}">\n{section_html}\n</section>\n')
+        parts.append(f'<section class="resume-section {class_name}">\n{section_html}\n</section>\n')
         cursor = section_end
 
     parts.append(html[cursor:])
@@ -1243,6 +1269,54 @@ def enhance_resume_html(html: str) -> str:
         "key-projects-section",
         _transform_key_projects_section,
     )
+
+    html = _wrap_remaining_h2_sections(html)
+    html = _remove_standalone_hr(html)
+    return html
+
+
+def _wrap_remaining_h2_sections(html: str) -> str:
+    """将尚未被 <section> 包裹的 <h2> 章节用 <section class="resume-section"> 包裹"""
+    h2_pattern = re.compile(r"<h2\b[^>]*>.*?</h2>", re.DOTALL)
+    section_pattern = re.compile(r"<section\b[^>]*>.*?</section>", re.DOTALL)
+    h2_matches = list(h2_pattern.finditer(html))
+    if not h2_matches:
+        return html
+
+    section_ranges = [(m.start(), m.end()) for m in section_pattern.finditer(html)]
+
+    def _is_inside_section(pos):
+        return any(start <= pos < end for start, end in section_ranges)
+
+    parts = []
+    cursor = 0
+
+    for index, match in enumerate(h2_matches):
+        if _is_inside_section(match.start()):
+            continue
+
+        section_end = h2_matches[index + 1].start() if index + 1 < len(h2_matches) else len(html)
+        for s_start, _ in section_ranges:
+            if match.end() <= s_start < section_end:
+                section_end = s_start
+                break
+
+        section_html = html[match.start():section_end].strip()
+        parts.append(html[cursor:match.start()])
+        parts.append(f'<section class="resume-section">\n{section_html}\n</section>\n')
+        cursor = section_end
+
+    parts.append(html[cursor:])
+    return "".join(parts)
+
+
+def _remove_standalone_hr(html: str) -> str:
+    """移除卡片化后多余的 <hr>（卡片间隙自带视觉分隔）"""
+    html = re.sub(r"</section>\s*<hr\s*/?>\s*<section", "</section>\n<section", html)
+    html = re.sub(r"</div>\s*<hr\s*/?>\s*<section", "</div>\n<section", html)
+    html = re.sub(r"</section>\s*<hr\s*/?>\s*$", "</section>\n", html)
+    html = re.sub(r"<hr\s*/?>\s*</section>", "</section>", html)
+    html = re.sub(r"</div>\s*\n\s*<hr\s*/?>\s*\n", "</div>\n", html)
     return html
 
 

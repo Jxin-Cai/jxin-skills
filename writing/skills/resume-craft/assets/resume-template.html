@@ -617,6 +617,28 @@
     }
 
     /* ============================================================
+       通用章节卡片
+       ============================================================ */
+    .resume-section {
+        background: linear-gradient(180deg, #FFF9F3 0%, #FAF0E4 100%);
+        border: 1px solid #ECDAC7;
+        border-radius: 10px;
+        padding: 18px 20px 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 18px rgba(201,110,42,0.04);
+    }
+
+    .resume-section > h2 {
+        margin-top: 0;
+    }
+
+    /* 嵌套子卡片减少外层 padding 冲突 */
+    .resume-section .experience-item,
+    .resume-section .project-card {
+        box-shadow: none;
+    }
+
+    /* ============================================================
        打印适配
        ============================================================ */
     @media print {
@@ -626,6 +648,10 @@
             print-color-adjust: exact !important;
         }
         .profile-snapshot {
+            break-inside: avoid;
+            -webkit-print-color-adjust: exact !important;
+        }
+        .resume-section {
             break-inside: avoid;
             -webkit-print-color-adjust: exact !important;
         }
@@ -652,17 +678,15 @@
 <p><strong>核心技能</strong>：<span class="skill-tag">Java</span> <span class="skill-tag">Spring Cloud</span> <span class="skill-tag">Kubernetes</span> <span class="skill-tag">微服务架构</span> <span class="skill-tag">高并发设计</span> <span class="skill-tag">分布式事务</span> <span class="skill-tag">DDD</span> <span class="skill-tag">团队管理</span></p>
 <div class="tagline">「10年Java架构师，在蚂蚁、美团、字节主导过3个千万级用户系统从0到1，擅长高并发架构设计与大规模团队技术体系建设」</div>
 </div>
-<hr />
-<section class="key-strengths-section">
+<section class="resume-section key-strengths-section">
 <h2 id="_2">核心优势</h2>
 <ul class="strengths-list"><li class="strength-item">主导设计日均处理 <strong>2000万+</strong> 请求的分布式交易系统，系统可用性达 <strong>99.99%</strong></li>
 <li class="strength-item">带领 <strong>12人</strong> 技术团队从 0 到 1 交付智能风控平台，上线后欺诈率降低 <strong>67%</strong></li>
 <li class="strength-item">推动团队从传统单体架构迁移至微服务，发布效率提升 <strong>300%</strong>，故障恢复时间缩短 <strong>80%</strong></li>
 <li class="strength-item">沉淀分布式架构方法论，在团队内培养出 <strong>3名</strong> 高级架构师</li>
 <li class="strength-item">技术博客累计 <strong>15万+</strong> 阅读量，QCon/ArchSummit 受邀演讲 <strong>4次</strong></li></ul>
-<hr />
 </section>
-<section class="skills-matrix-section">
+<section class="resume-section skills-matrix-section">
 <h2 id="_3">技能矩阵</h2>
 <div class="skills-row"><span class="skills-label">编程语言</span><span class="skills-items">Java (精通) · Python (熟练) · Go (熟悉) · TypeScript (熟悉)</span></div>
 <div class="skills-row"><span class="skills-label">框架 &amp; 中间件</span><span class="skills-items">Spring Boot · Spring Cloud · MyBatis-Plus · Redis · Kafka · RocketMQ · Elasticsearch · Dubbo</span></div>
@@ -670,9 +694,8 @@
 <div class="skills-row"><span class="skills-label">云原生 &amp; DevOps</span><span class="skills-items">Kubernetes · Docker · Helm · Jenkins · GitLab CI · Prometheus · Grafana · SkyWalking</span></div>
 <div class="skills-row"><span class="skills-label">架构能力</span><span class="skills-items">微服务架构 · DDD领域驱动设计 · CQRS · 分布式事务(Seata) · 高并发设计 · 系统容量规划</span></div>
 <div class="skills-row"><span class="skills-label">AI &amp; 新技术</span><span class="skills-items">LLM应用开发 · RAG · Prompt Engineering · LangChain · 向量数据库</span></div>
-<hr />
 </section>
-<section class="work-experience-section">
+<section class="resume-section work-experience-section">
 <h2 id="_4">工作经历</h2>
 <article class="experience-item">
 <div class="experience-heading"><div class="experience-heading-main"><div class="experience-company">字节跳动</div><div class="experience-role">架构师/技术负责人</div></div><div class="experience-period">2022.03 - 至今</div></div>
@@ -701,9 +724,8 @@
 </section>
 <p class="experience-tech-stack"><span class="experience-block-label">技术栈</span> <code>Java</code> <code>SOFA</code> <code>OceanBase</code> <code>分布式事务</code></p>
 </article>
-<hr />
 </section>
-<section class="key-projects-section">
+<section class="resume-section key-projects-section">
 <h2 id="_5">代表项目</h2>
 <article class="project-card">
 <h3 id="_6">电商交易系统架构升级（字节跳动）</h3>
@@ -769,8 +791,8 @@
 <p><code>Java</code> <code>Flink</code> <code>Redis</code> <code>Elasticsearch</code> <code>机器学习</code> <code>Drools</code></p>
 </div>
 </article>
-<hr />
 </section>
+<section class="resume-section">
 <h2 id="_8">技术影响力</h2>
 <ul>
 <li><strong>技术博客</strong>：掘金/InfoQ 签约作者，累计 <strong>15万+</strong> 阅读量</li>
@@ -784,9 +806,12 @@
 <li>2022 美团技术沙龙《智能风控系统架构演进》</li>
 <li><strong>开源贡献</strong>：Apache Dubbo Contributor（贡献 5 个 PR），个人开源项目 <strong>800+ Stars</strong></li>
 </ul>
-<hr />
+</section>
+<section class="resume-section">
 <h2 id="_9">教育背景</h2>
 <p><strong>浙江大学</strong> | 硕士 · 计算机科学与技术 | 2013 - 2015</p>
 <p><strong>浙江大学</strong> | 学士 · 软件工程 | 2009 - 2013</p>
+</section>
+
 </body>
 </html>
