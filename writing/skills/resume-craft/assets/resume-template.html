@@ -28,16 +28,17 @@
        ============================================================ */
     .profile-snapshot {
         background:
-            radial-gradient(circle at top right, rgba(240,163,91,0.18) 0%, transparent 36%),
+            radial-gradient(ellipse 160px 160px at top right, rgba(240,163,91,0.18) 0%, transparent 70%),
             linear-gradient(155deg, #2C2018 0%, #473124 100%);
         color: rgba(251,243,232,0.88);
-        padding: 28px 30px 24px;
-        border-radius: 12px;
-        margin-bottom: 26px;
+        padding: 26px 28px 22px;
+        border-radius: 10px;
+        margin-bottom: 20px;
         page-break-inside: avoid;
-        border-left: 4px solid #F0A35B;
         border: 1px solid rgba(240,163,91,0.34);
-        box-shadow: 0 18px 38px rgba(118, 64, 22, 0.16);
+        box-shadow:
+            0 1px 3px rgba(0,0,0,0.08),
+            0 12px 28px rgba(118,64,22,0.12);
         position: relative;
         overflow: hidden;
     }
@@ -46,11 +47,11 @@
     .profile-snapshot::after {
         content: "";
         position: absolute;
-        top: -54px;
-        right: -30px;
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(240,163,91,0.18) 0%, transparent 72%);
+        top: -40px;
+        right: -20px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(240,163,91,0.18) 0%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
@@ -139,25 +140,26 @@
        章节标题
        ============================================================ */
     h2 {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         color: #231A14;
-        padding-left: 14px;
-        margin-top: 22px;
+        padding: 0 0 6px 12px;
+        margin-top: 18px;
         margin-bottom: 10px;
         page-break-after: avoid;
         position: relative;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
+        border-bottom: 1px solid #F0E6DA;
     }
 
     h2::before {
         content: "";
         position: absolute;
         left: 0;
-        top: 2px;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(to bottom, #C96E2A, #E59A57);
+        top: 1px;
+        width: 3px;
+        height: calc(100% - 7px);
+        background: #C96E2A;
         border-radius: 2px;
     }
 
@@ -352,13 +354,14 @@
 
     /* 画像区头像 — 右上角圆形头像 */
     .profile-snapshot img {
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
         border-radius: 50%;
         border: 3px solid rgba(240,163,91,0.34);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         float: right;
-        margin: -4px -4px 12px 18px;
+        margin: -10px -6px 12px 20px;
         shape-outside: circle();
         position: relative;
         z-index: 1;
@@ -381,12 +384,16 @@
     .key-strengths-section .strength-item {
         counter-increment: strength-counter;
         position: relative;
-        padding: 6px 10px 6px 36px;
-        margin-bottom: 5px;
+        padding: 7px 10px 7px 36px;
+        margin-bottom: 4px;
         border-left: 2px solid rgba(201,110,42,0.28);
         border-radius: 0 4px 4px 0;
         break-inside: avoid;
         line-height: 1.7;
+    }
+
+    .key-strengths-section .strength-item:nth-child(odd) {
+        background: #FEFAF6;
     }
 
     .key-strengths-section .strength-item::before {
@@ -601,9 +608,9 @@
         background: #FFFFFF;
         border: 1px solid #F0E6DA;
         border-radius: 8px;
-        padding: 16px 18px 14px;
-        margin-bottom: 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 14px 16px 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .resume-section > h2 {

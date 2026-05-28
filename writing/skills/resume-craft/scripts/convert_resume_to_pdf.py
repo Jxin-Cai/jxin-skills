@@ -150,16 +150,17 @@ def get_css(theme: dict) -> str:
        ============================================================ */
     .profile-snapshot {{
         background:
-            radial-gradient(circle at top right, {profile_accent_glow} 0%, transparent 36%),
+            radial-gradient(ellipse 160px 160px at top right, {profile_accent_glow} 0%, transparent 70%),
             linear-gradient(155deg, {theme["profile_bg_from"]} 0%, {theme["profile_bg_to"]} 100%);
         color: {theme["profile_text"]};
-        padding: 28px 30px 24px;
-        border-radius: 12px;
-        margin-bottom: 26px;
+        padding: 26px 28px 22px;
+        border-radius: 10px;
+        margin-bottom: 20px;
         page-break-inside: avoid;
-        border-left: 4px solid {profile_accent};
         border: 1px solid {profile_accent_border};
-        box-shadow: 0 18px 38px rgba(118, 64, 22, 0.16);
+        box-shadow:
+            0 1px 3px rgba(0,0,0,0.08),
+            0 12px 28px rgba(118,64,22,0.12);
         position: relative;
         overflow: hidden;
     }}
@@ -168,11 +169,11 @@ def get_css(theme: dict) -> str:
     .profile-snapshot::after {{
         content: "";
         position: absolute;
-        top: -54px;
-        right: -30px;
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, {profile_accent_glow} 0%, transparent 72%);
+        top: -40px;
+        right: -20px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, {profile_accent_glow} 0%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }}
@@ -261,25 +262,26 @@ def get_css(theme: dict) -> str:
        章节标题
        ============================================================ */
     h2 {{
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         color: {theme["text_heading"]};
-        padding-left: 14px;
-        margin-top: 22px;
+        padding: 0 0 6px 12px;
+        margin-top: 18px;
         margin-bottom: 10px;
         page-break-after: avoid;
         position: relative;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
+        border-bottom: 1px solid {theme["border"]};
     }}
 
     h2::before {{
         content: "";
         position: absolute;
         left: 0;
-        top: 2px;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(to bottom, {theme["accent"]}, {theme["accent_warm"]});
+        top: 1px;
+        width: 3px;
+        height: calc(100% - 7px);
+        background: {theme["accent"]};
         border-radius: 2px;
     }}
 
@@ -474,13 +476,14 @@ def get_css(theme: dict) -> str:
 
     /* 画像区头像 — 右上角圆形头像 */
     .profile-snapshot img {{
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
         border-radius: 50%;
         border: 3px solid {profile_accent_border};
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         float: right;
-        margin: -4px -4px 12px 18px;
+        margin: -10px -6px 12px 20px;
         shape-outside: circle();
         position: relative;
         z-index: 1;
@@ -503,12 +506,16 @@ def get_css(theme: dict) -> str:
     .key-strengths-section .strength-item {{
         counter-increment: strength-counter;
         position: relative;
-        padding: 6px 10px 6px 36px;
-        margin-bottom: 5px;
+        padding: 7px 10px 7px 36px;
+        margin-bottom: 4px;
         border-left: 2px solid {theme["accent_border"]};
         border-radius: 0 4px 4px 0;
         break-inside: avoid;
         line-height: 1.7;
+    }}
+
+    .key-strengths-section .strength-item:nth-child(odd) {{
+        background: {theme["section_bg"]};
     }}
 
     .key-strengths-section .strength-item::before {{
@@ -723,9 +730,9 @@ def get_css(theme: dict) -> str:
         background: {theme["bg"]};
         border: 1px solid {theme["border"]};
         border-radius: 8px;
-        padding: 16px 18px 14px;
-        margin-bottom: 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 14px 16px 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }}
 
     .resume-section > h2 {{
