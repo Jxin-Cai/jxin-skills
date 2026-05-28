@@ -1320,10 +1320,20 @@ def md_to_html(md_content: str, base_dir: str) -> str:
 
 async def html_to_pdf_playwright(html_path: str, pdf_path: str):
     """使用 Playwright 将 HTML 转换为 PDF"""
+    import subprocess
     from playwright.async_api import async_playwright
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        try:
+            browser = await p.chromium.launch()
+        except Exception:
+            print("  ⏳ Chromium 未就绪，正在自动安装...")
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install", "chromium"],
+                check=True, capture_output=True,
+            )
+            browser = await p.chromium.launch()
+
         page = await browser.new_page()
 
         # 加载 HTML 文件
