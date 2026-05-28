@@ -19,7 +19,7 @@
         font-size: 12.5px;
         line-height: 1.65;
         color: #312A24;
-        background: #FFF9F3;
+        background: #FFFFFF;
         -webkit-font-smoothing: antialiased;
     }
 
@@ -277,7 +277,7 @@
     }
 
     th {
-        background: #FAF0E4;
+        background: #FEFAF6;
         color: #231A14;
         font-weight: 600;
         padding: 8px 12px;
@@ -287,7 +287,7 @@
 
     td {
         padding: 6px 12px;
-        border-bottom: 1px solid #ECDAC7;
+        border-bottom: 1px solid #F0E6DA;
     }
 
     tr:hover td {
@@ -352,14 +352,16 @@
 
     /* 画像区头像 — 右上角圆形头像 */
     .profile-snapshot img {
-        width: 96px;
-        height: 96px;
+        width: 110px;
+        height: 110px;
         object-fit: cover;
         border-radius: 50%;
-        border: 2px solid rgba(240,163,91,0.34);
+        border: 3px solid rgba(240,163,91,0.34);
         float: right;
-        margin: 0 0 10px 16px;
+        margin: -4px -4px 12px 18px;
         shape-outside: circle();
+        position: relative;
+        z-index: 1;
     }
 
     /* ============================================================
@@ -419,7 +421,7 @@
         gap: 12px;
         padding-bottom: 8px;
         margin-bottom: 8px;
-        border-bottom: 1px solid #ECDAC7;
+        border-bottom: 1px solid #F0E6DA;
         break-after: avoid;
     }
 
@@ -506,7 +508,7 @@
         align-items: baseline;
         gap: 10px;
         padding: 5px 0;
-        border-bottom: 1px solid #ECDAC7;
+        border-bottom: 1px solid #F0E6DA;
         break-inside: avoid;
     }
 
@@ -549,7 +551,7 @@
         margin-top: 0;
         margin-bottom: 8px;
         padding-bottom: 6px;
-        border-bottom: 1px solid #ECDAC7;
+        border-bottom: 1px solid #F0E6DA;
         break-after: avoid;
     }
 
@@ -593,11 +595,15 @@
     }
 
     /* ============================================================
-       通用章节卡片 — 轻量边界，不用大色块
+       通用章节卡片 — 白底微阴影，清晰区块
        ============================================================ */
     .resume-section {
-        padding: 0;
-        margin-bottom: 6px;
+        background: #FFFFFF;
+        border: 1px solid #F0E6DA;
+        border-radius: 8px;
+        padding: 16px 18px 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
 
     .resume-section > h2 {

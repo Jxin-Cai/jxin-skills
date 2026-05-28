@@ -68,12 +68,12 @@ THEMES = {
         "tag_text": "#A95C21",
         "tag_border": "rgba(201,110,42,0.22)",
         # 正文区
-        "bg": "#FFF9F3",
+        "bg": "#FFFFFF",
         "text_body": "#312A24",
         "text_heading": "#231A14",
         "text_muted": "#6E6259",
-        "section_bg": "#FAF0E4",
-        "border": "#ECDAC7",
+        "section_bg": "#FEFAF6",
+        "border": "#F0E6DA",
         "link": "#B86222",
     },
     "classic": {
@@ -101,12 +101,12 @@ THEMES = {
         "tag_text": "#A05A24",
         "tag_border": "rgba(200,111,45,0.18)",
         # 正文区
-        "bg": "#FFFCF8",
+        "bg": "#FFFFFF",
         "text_body": "#312A24",
         "text_heading": "#241A14",
         "text_muted": "#6C6057",
-        "section_bg": "#FCF3E8",
-        "border": "#EDDCC9",
+        "section_bg": "#FFFBF7",
+        "border": "#F2E8DC",
         "link": "#AF6127",
     },
 }
@@ -474,14 +474,16 @@ def get_css(theme: dict) -> str:
 
     /* 画像区头像 — 右上角圆形头像 */
     .profile-snapshot img {{
-        width: 96px;
-        height: 96px;
+        width: 110px;
+        height: 110px;
         object-fit: cover;
         border-radius: 50%;
-        border: 2px solid {profile_accent_border};
+        border: 3px solid {profile_accent_border};
         float: right;
-        margin: 0 0 10px 16px;
+        margin: -4px -4px 12px 18px;
         shape-outside: circle();
+        position: relative;
+        z-index: 1;
     }}
 
     /* ============================================================
@@ -715,11 +717,15 @@ def get_css(theme: dict) -> str:
     }}
 
     /* ============================================================
-       通用章节卡片 — 轻量边界，不用大色块
+       通用章节卡片 — 白底微阴影，清晰区块
        ============================================================ */
     .resume-section {{
-        padding: 0;
-        margin-bottom: 6px;
+        background: {theme["bg"]};
+        border: 1px solid {theme["border"]};
+        border-radius: 8px;
+        padding: 16px 18px 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }}
 
     .resume-section > h2 {{
