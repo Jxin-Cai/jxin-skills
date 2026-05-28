@@ -501,36 +501,24 @@ def get_css(theme: dict) -> str:
     .key-strengths-section .strength-item {{
         counter-increment: strength-counter;
         position: relative;
-        padding: 12px 14px 12px 52px;
-        margin-bottom: 8px;
-        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
-        border: 1px solid {theme["border"]};
+        padding: 6px 10px 6px 36px;
+        margin-bottom: 5px;
         border-left: 2px solid {theme["accent_border"]};
-        border-radius: 8px;
-        box-shadow: 0 8px 18px rgba(201,110,42,0.05);
+        border-radius: 0 4px 4px 0;
         break-inside: avoid;
+        line-height: 1.7;
     }}
 
     .key-strengths-section .strength-item::before {{
         content: counter(strength-counter, decimal-leading-zero);
         position: absolute;
-        left: 14px;
-        top: 12px;
+        left: 10px;
+        top: 6px;
         color: {theme["accent"]};
         font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 700;
         letter-spacing: 0.4px;
-    }}
-
-    .key-strengths-section .strength-item::after {{
-        content: "";
-        position: absolute;
-        left: 38px;
-        top: 12px;
-        bottom: 12px;
-        width: 1px;
-        background: linear-gradient(to bottom, {theme["accent_border"]}, transparent);
     }}
 
     /* ============================================================
@@ -541,13 +529,9 @@ def get_css(theme: dict) -> str:
     }}
 
     .work-experience-section .experience-item {{
-        padding: 14px 15px 13px;
-        margin-bottom: 14px;
-        border: 1px solid {theme["border"]};
-        border-top: 2px solid {theme["accent_border"]};
-        border-radius: 10px;
-        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
-        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
+        padding: 12px 0 12px 14px;
+        margin-bottom: 12px;
+        border-left: 2px solid {theme["accent_border"]};
     }}
 
     .work-experience-section .experience-heading {{
@@ -555,8 +539,8 @@ def get_css(theme: dict) -> str:
         justify-content: space-between;
         align-items: flex-start;
         gap: 12px;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
         border-bottom: 1px solid {theme["border"]};
         break-after: avoid;
     }}
@@ -567,14 +551,14 @@ def get_css(theme: dict) -> str:
     }}
 
     .work-experience-section .experience-company {{
-        font-size: 15px;
+        font-size: 14.5px;
         font-weight: 700;
         color: {theme["text_heading"]};
         line-height: 1.4;
     }}
 
     .work-experience-section .experience-role {{
-        margin-top: 4px;
+        margin-top: 2px;
         color: {theme["text_muted"]};
         font-size: 12px;
         line-height: 1.6;
@@ -595,27 +579,23 @@ def get_css(theme: dict) -> str:
 
     .work-experience-section .experience-summary {{
         color: {theme["text_muted"]};
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         line-height: 1.7;
     }}
 
     .work-experience-section .experience-achievements {{
-        margin-bottom: 10px;
-        padding: 10px 12px 8px;
-        border-radius: 8px;
-        background: {theme["section_bg"]};
-        border: 1px solid {theme["border"]};
+        margin-bottom: 8px;
     }}
 
     .work-experience-section .experience-block-label {{
         display: inline-block;
-        margin-bottom: 6px;
-        padding: 2px 8px;
+        margin-bottom: 4px;
+        padding: 1px 7px;
         background: {theme["accent_glow"]};
         border: 1px solid {theme["accent_border"]};
         border-radius: 999px;
         color: {theme["text_heading"]};
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 600;
         letter-spacing: 0.3px;
     }}
@@ -645,19 +625,19 @@ def get_css(theme: dict) -> str:
 
     .skills-matrix-section .skills-row {{
         display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 9px 12px;
-        margin-bottom: 8px;
-        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
-        border: 1px solid {theme["border"]};
-        border-left: 3px solid {theme["accent"]};
-        border-radius: 6px;
+        align-items: baseline;
+        gap: 10px;
+        padding: 5px 0;
+        border-bottom: 1px solid {theme["border"]};
         break-inside: avoid;
     }}
 
+    .skills-matrix-section .skills-row:last-child {{
+        border-bottom: none;
+    }}
+
     .skills-matrix-section .skills-label {{
-        flex: 0 0 100px;
+        flex: 0 0 90px;
         font-size: 11.5px;
         font-weight: 600;
         color: {theme["text_heading"]};
@@ -682,25 +662,21 @@ def get_css(theme: dict) -> str:
     }}
 
     .key-projects-section .project-card {{
-        background: linear-gradient(180deg, {theme["section_bg"]} 0%, {theme["bg"]} 100%);
-        border: 1px solid {theme["border"]};
-        border-top: 2px solid {theme["accent_border"]};
-        border-radius: 8px;
-        padding: 14px 15px 12px;
-        margin-bottom: 14px;
-        box-shadow: 0 10px 20px rgba(201,110,42,0.04);
+        padding: 12px 0 12px 14px;
+        margin-bottom: 12px;
+        border-left: 2px solid {theme["accent_border"]};
     }}
 
     .key-projects-section .project-card h3 {{
         margin-top: 0;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
         border-bottom: 1px solid {theme["border"]};
         break-after: avoid;
     }}
 
     .key-projects-section .project-block {{
-        margin-bottom: 10px;
+        margin-bottom: 6px;
     }}
 
     .key-projects-section .project-block:last-child {{
@@ -709,13 +685,13 @@ def get_css(theme: dict) -> str:
 
     .key-projects-section .project-block-label {{
         display: inline-block;
-        margin-bottom: 5px;
-        padding: 2px 8px;
+        margin-bottom: 3px;
+        padding: 1px 7px;
         background: {theme["accent_glow"]};
         border: 1px solid {theme["accent_border"]};
         border-radius: 999px;
         color: {theme["text_heading"]};
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 600;
         letter-spacing: 0.3px;
     }}
@@ -739,25 +715,15 @@ def get_css(theme: dict) -> str:
     }}
 
     /* ============================================================
-       通用章节卡片
+       通用章节卡片 — 轻量边界，不用大色块
        ============================================================ */
     .resume-section {{
-        background: linear-gradient(180deg, {theme["bg"]} 0%, {theme["section_bg"]} 100%);
-        border: 1px solid {theme["border"]};
-        border-radius: 10px;
-        padding: 18px 20px 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 8px 18px rgba(201,110,42,0.04);
+        padding: 0;
+        margin-bottom: 6px;
     }}
 
     .resume-section > h2 {{
         margin-top: 0;
-    }}
-
-    /* 嵌套子卡片减少外层 padding 冲突 */
-    .resume-section .experience-item,
-    .resume-section .project-card {{
-        box-shadow: none;
     }}
 
     /* ============================================================
@@ -770,10 +736,6 @@ def get_css(theme: dict) -> str:
             print-color-adjust: exact !important;
         }}
         .profile-snapshot {{
-            break-inside: avoid;
-            -webkit-print-color-adjust: exact !important;
-        }}
-        .resume-section {{
             break-inside: avoid;
             -webkit-print-color-adjust: exact !important;
         }}

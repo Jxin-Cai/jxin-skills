@@ -1,5 +1,7 @@
 # 张三
 
+![头像](photo.jpg)
+
 > 32岁 · 硕士/浙江大学计算机科学 · 10年经验 · 资深Java架构师
 > 📱 138-xxxx-xxxx · 📧 zhangsan@email.com · 🔗 github.com/zhangsan
 
