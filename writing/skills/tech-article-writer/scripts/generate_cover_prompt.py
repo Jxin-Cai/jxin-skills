@@ -15,8 +15,12 @@ python generate_cover_prompt.py --article-file article.md --output cover_prompt.
 import argparse
 import re
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
+
+sys.path.insert(0, str(Path(__file__).parent))
+from shared import detect_article_type, extract_title as shared_extract_title
 
 
 class CoverPromptGenerator:
@@ -36,24 +40,12 @@ class CoverPromptGenerator:
     
     def _extract_title(self) -> str:
         """提取文章标题"""
-        match = re.search(r'^#\s+(.+)$', self.article_content, re.MULTILINE)
-        return match.group(1).strip() if match else "未知主题"
-    
+        title = shared_extract_title(self.article_content)
+        return title if title != "未命名文章" else "未知主题"
+
     def _detect_article_type(self) -> str:
         """检测文章类型"""
-        content = self.article_content.lower()
-        
-        # 通过关键词判断文章类型
-        if any(word in content for word in ['概念', '介绍', '什么是', '基础']):
-            return "科普型"
-        elif any(word in content for word in ['问题', '解决', '优化', '改进']):
-            return "问题解决型"
-        elif any(word in content for word in ['经验', '实践', '项目', '复盘']):
-            return "经验总结型"
-        elif any(word in content for word in ['趋势', '未来', '发展', '预测']):
-            return "趋势分析型"
-        else:
-            return "综合型"
+        return detect_article_type(self.article_content)
     
     def _extract_key_concepts(self) -> list:
         """提取关键技术概念"""

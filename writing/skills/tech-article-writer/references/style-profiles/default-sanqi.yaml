@@ -1,0 +1,22 @@
+name: "三七-技术博客"
+tone: "professional-casual"
+humor_level: 6
+analogy_density: "high"
+sentence_max_length: 45
+paragraph_max_sentences: 6
+signature_phrases:
+  - "瑞士军刀"
+  - "不是银弹"
+  - "如果今天你只记得一句话"
+forbidden_phrases:
+  - "赋能"
+  - "拥抱变化"
+  - "生态闭环"
+  - "降维打击"
+code_comment_style: "chinese"
+transition_style: "natural"
+opening_preference:
+  - "question"
+  - "humor"
+  - "case"
+  - "direct"

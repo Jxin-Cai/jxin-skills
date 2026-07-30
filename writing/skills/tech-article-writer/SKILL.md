@@ -1,298 +1,254 @@
 ---
 name: tech-article-writer
-description: 专业技术文章创作技能，用于创作10分钟阅读时长的高质量技术文章。支持4种文章类型（科普型、问题解决型、经验总结型、趋势分析型），采用黄金五段式结构，包含双记忆系统和智能升级能力。当用户需要创作、修改或优化技术文章时使用此技能。特别适用于：(1)从零创作完整技术文章 (2)修改和优化现有文章 (3)生成文章封面图片提示词和摘要 (4)进行文章质量检查和重新生成。
+description: 专业技术文章创作与增量修改工作流。用于写技术博客、教程、架构解析、工具评测、实践复盘或修改已有 Markdown 技术文章；包含多视角联网调研、可追溯引用、黄金五段式/动态大纲、风格指纹、中文去 AI 味两遍审计、版本快照与局部重写。仅在用户显式调用 /jxin-writing:article 时使用，不根据普通写作请求自动触发。
 ---
 
-# 技术文章创作技能
+# Tech Article Writer
 
-## 核心功能
+面向中文技术文章的完整创作技能。文章要专业、可验证、好读，并保留作者自己的判断。不要把文章写成百科词条、产品宣传稿或模板化 AI 长文。
 
-本技能提供专业的技术文章创作能力，专注于创作**阅读时长10分钟左右**的高质量技术文章。
+## 参考文件加载
 
-### 主要特点
+按任务需要读取，不要一次性把所有参考文件加载进上下文：
 
-- 🎯 **4种文章类型识别**：科普型、问题解决型、经验总结型、趋势分析型
-- 📐 **黄金五段式结构**：场景引入→概念引出/破俗立新→深度阐释→举一反三→总结回顾
-- ✅ **Markdown格式检查**：强制语法检查，确保正确渲染
-- 🧠 **双记忆系统**：会话记录+智能升级机制
-- 🔄 **整篇重新生成**：每次修改后触发全文检查和重新生成
+- 新文章基础结构：[article-structure.md](references/article-structure.md)
+- 写作语言与案例原则：[writing-guidelines.md](references/writing-guidelines.md)
+- Markdown 规范：[markdown-rules.md](references/markdown-rules.md)
+- 自动调研与引用：[research-phase.md](references/research-phase.md)
+- 中文 AI 模式审计：[anti-ai-patterns.md](references/anti-ai-patterns.md)
+- 复杂主题动态规划：[dynamic-outline.md](references/dynamic-outline.md)
+- 风格 profile：[style-profiles/README.md](references/style-profiles/README.md)
+- 图片与架构图：[diagram-integration.md](references/diagram-integration.md)
+- 会话与用户偏好：[memory-system.md](references/memory-system.md)
 
-## 使用流程
+默认风格是 [default-sanqi.yaml](references/style-profiles/default-sanqi.yaml)。用户要求正式、克制的技术文档风格时加载 [formal-tech.yaml](references/style-profiles/formal-tech.yaml)。
 
-### 1. 创作新文章
+## 创作新文章
 
-当用户请求创作文章时：
+### 1. 明确任务
 
-1. **内容类型识别**：询问用户技术主题、写作目标、目标读者
-2. **写作策略确认**：提出写作思路，获得确认
-3. **生成主文章**：按照黄金五段式创作完整文章
-4. **生成封面提示词**：调用`scripts/generate_cover_prompt.py`生成独立文件
-5. **生成文章摘要**：调用`scripts/generate_summary.py`生成独立文件
-6. **质量检查**：运行`scripts/check_article_quality.py`进行全面检查
+先从用户输入中提取：
 
-如果用户没有指定文章、封面提示词、摘要或配图的输出目录，则默认使用**调用该技能的会话当前根目录**作为工作根目录：
-- 文章正文默认写到当前根目录
-- 封面提示词、摘要、配图等派生产物默认写到当前根目录下的 `image_output/` 或与文章同级的业务目录中
-- 不要把这些输出写到 `tech-article-writer` 技能自身目录里
+- 主题、目标读者、发布渠道
+- 写作目标与核心结论
+- 期望字数、截止时间、是否需要代码/图片
+- 用户提供的材料、代码、链接和事实边界
 
-### 2. 修改现有文章
+只有真正影响方案的缺口才提问。用户已给出明确要求时直接执行。
 
-⚠️ **重要**：每次用户提出修改要求时，必须执行以下完整流程：
+### 2. 选择风格
 
-1. **理解修改意图**：分析用户的修改需求
-2. **应用修改**：在文章中进行相应调整
-3. **触发整篇重新生成**：
-   - 重新检查全文逻辑一致性
-   - 重新生成总结部分
-   - 重新生成"如果今天你只记得一句话"
-   - 更新封面图片提示词（如果主题有变化）
-   - 更新文章摘要
-4. **全面质量检查**：运行`scripts/check_article_quality.py`
-
-**禁止**：不允许仅进行局部修改而不检查全文，这会导致叙述混乱。
-
-### 3. 生成独立文件
-
-#### 封面图片提示词
-
-文章创作完成后，自动调用`scripts/generate_cover_prompt.py`生成：
-
-如果用户没有指定输出位置，则默认把封面提示词写到当前会话根目录下的 `image_output/cover_prompt.txt`，或写到与文章文件同级的业务目录；不要写入 Skill 自身目录。
+- 未指定时使用 `default-sanqi.yaml`。
+- 用户指定 profile 时读取对应 YAML。
+- 用户提供 3 篇以上历史文章并要求模仿时，先运行：
 
 ```bash
-python scripts/generate_cover_prompt.py --article-file article.md --output cover_prompt.txt
+python scripts/extract_style.py \
+  --articles-dir <历史文章目录> \
+  --output <custom-profile.yaml>
 ```
 
-输出示例：
+提取结果是风格草稿。检查并删除偶然高频词、隐私和不应固化的表达后再使用。
 
-```
-一幅现代科技风格的插画，展示微服务架构的概念。画面中心是由多个彩色方块组成的立体建筑，每个方块代表一个独立的微服务。方块之间用发光的线条连接，象征服务间的通信。背景是深蓝色渐变，点缀着代码片段和数据流动的视觉元素。整体色调以蓝色、紫色、橙色为主，呈现科技感和未来感。
-```
+### 3. 确认写作策略
 
-#### 文章摘要
+用简短清单给出：
 
-调用`scripts/generate_summary.py`生成：
+- 文章定位与读者
+- 建议结构模式
+- 预计字数与代码/图片数量
+- 当前风格 profile
+- 是否联网调研
 
-如果用户没有指定输出位置，则默认把摘要写到当前会话根目录下的 `image_output/summary.txt`，或写到与文章文件同级的业务目录；不要写入 Skill 自身目录。
+用户要求直接完成时，自行检查后继续，不要把流程变成连续审批。
+
+### 4. 自动调研
+
+除非用户明确跳过，按照 [research-phase.md](references/research-phase.md) 执行：
+
+1. 从实践者、架构师、初学者三个视角生成搜索问题。
+2. 使用 `WebSearch` 搜索，使用 `WebFetch` 阅读关键原文。
+3. 优先官方文档、标准、论文和一线工程团队复盘。
+4. 建立 3-5 张高价值素材卡，保存为 `<article>.materials.json`。
+5. 关键数字和强结论至少交叉验证一次。
+
+无法联网时说明限制，不编造引用、URL、数字或“业内共识”。
+
+### 5. 选择大纲模式
+
+- 普通教程、单一工具介绍、短篇文章：黄金五段式。
+- 多子系统、方案权衡、5000 字以上或强依赖主题：按照 [dynamic-outline.md](references/dynamic-outline.md) 使用动态大纲。
+
+动态大纲仍以五个根节点保持叙事节奏，但允许 2-3 层子节点。每个节点标注：摘要、预计字数、内容类型、素材卡和依赖。
+
+先生成骨架：每个叶节点只写 1-2 句摘要。确认逻辑完整后再展开正文。
+
+### 6. 创建初始版本
+
+首次落盘后立即创建快照：
 
 ```bash
-python scripts/generate_summary.py --article-file article.md --output summary.txt
+python scripts/version_manager.py \
+  --action snapshot \
+  --article-file <article.md> \
+  --note "初始骨架"
 ```
 
-输出示例：
+### 7. 分节写作
 
-```
-本文深入解析微服务架构的核心理念和实践方法，从单体应用的痛点出发，通过生动的类比和真实案例，帮助读者理解服务拆分、服务通信、数据一致性等关键概念，并提供可落地的实施建议。
-```
+按大纲依赖顺序展开，不机械按标题顺序填充。每节都要有信息增量：
 
-## 核心写作原则
+- 概念必须说明边界和适用条件。
+- 技术判断必须说明依据和权衡。
+- 代码示例必须最小可运行，关键行带中文解释。
+- 案例必须有场景、动作和结果，不能只写“效果显著”。
+- 图片服务于理解；需要时遵循 [diagram-integration.md](references/diagram-integration.md)。
 
-详细的写作规则和模板请参考：
+写完一节后检查它是否兑现骨架摘要，并与依赖节点一致。
 
-- **写作规范**：`references/writing-guidelines.md`
-- **文章结构模板**：`references/article-structure.md`
-- **Markdown格式规范**：`references/markdown-rules.md`
-- **双记忆系统说明**：`references/memory-system.md`
+### 8. 处理引用
 
-## 文章标准模板
+正文中的外部事实、数字和第三方结论使用 `[1]`、`[2]` 连续标记。文末生成 `## 参考引用`。
 
-使用`assets/article-template.md`作为起始模板，包含：
-
-- 标准文章抬头（作者信息+公众号）
-- 产品口号
-- 封面图片提示词占位符
-- 文章摘要占位符
-- 完整的五段式结构框架
-
-## 质量检查清单
-
-每次生成或修改文章后，必须检查：
-
-- ✅ 文章类型正确识别
-- ✅ 黄金五段式结构完整
-- ✅ Markdown语法无错误
-- ✅ 代码块配对完整
-- ✅ 列表格式正确
-- ✅ 封面提示词已生成
-- ✅ 文章摘要已生成
-- ✅ 总结部分与全文一致
-- ✅ "一句话精华"准确概括核心
-
-## 会话记录机制
-
-每次文章创作完成后，自动执行：
-
-```python
-scripts/record_session.py --article-file article.md --metadata metadata.json
-```
-
-记录内容包括：
-
-- 文章类型
-- 生成时间
-- 修改次数
-- 用户满意度
-- 质量评分
-
-会话记录存储在根目录`.tech-article-writer/sessions/`
-
-## 智能绘图集成
-
-当文章需要绘制流程图、架构图等可视化内容时：
-
-1. **智能检测技能位置**：自动搜索`smart-image-generator`技能
-   - 用户级：`~/.cursor/skills/`
-   - 项目级：`./skills/`
-   - 相对路径和全局搜索
-2. **告知用户位置**：找到技能后明确告知实际路径
-3. **调用绘图技能**：如果存在，使用该技能生成图片
-4. **存储图片**：默认保存到调用会话当前根目录下的 `image_output/`，或文章同级业务目录；不要保存到 Skill 自身目录
-5. **插入引用**：在文章中插入图片引用路径
-
-### 账号管理
-
-#### 换号/重新登录
-
-当用户输入以下关键词时，需要清除登录状态并重新登录：
-
-**触发关键词**：
-
-- "换号"
-- "重新登录"
-- "切换账号"
-- "换个账号"
-- "登出"
-- "退出登录"
-- "logout"
-
-**AI执行流程**：
-
-```
-1. 识别用户意图："我检测到您想要换号/重新登录"
-2. 智能搜索smart-image-generator技能
-3. 如果找到，执行清除登录脚本
-4. 告知用户结果和下一步操作
-```
-
-**示例对话**：
-
-```
-用户: 我想换个账号
-
-AI: 检测到您想要换号重新登录。
-
-    🔍 智能搜索smart-image-generator技能...
-    ✅ 找到技能（用户级）: ~/.cursor/skills/smart-image-generator
-
-    🔐 正在清除登录状态...
-
-    [执行: cd技能目录 && bun scripts/logout.ts]
-
-    ✅ 登录状态已清除
-
-    💡 下次生成图片时会自动弹出浏览器，请登录新账号。
-```
-
-### AI使用流程
-
-当需要生成图表时，AI应该：
-
-```
-1. 告知用户："检测到需要生成[图表类型]..."
-2. 执行智能搜索："🔍 智能搜索smart-image-generator技能..."
-3. 如果找到：
-   ✅ 告知位置："找到技能（用户级/项目级）: [实际路径]"
-   📝 生成图片
-   📎 插入引用: ![图片](.tech-article-writer/images/xxx.png)
-4. 如果未找到：
-   ❌ 告知搜索结果："未找到技能，已搜索：..."
-   💡 使用回退方案：插入Mermaid代码块
-```
-
-### 示例对话
-
-**场景1：找到技能（用户级）**
-
-```
-AI: 我会在第三部分添加微服务架构图。
-    🔍 智能搜索smart-image-generator技能...
-    ✅ 找到技能（用户级）: ~/.cursor/skills/smart-image-generator
-
-    正在生成专业架构图...
-    [生成完成]
-
-    已插入: ![架构图](.tech-article-writer/images/arch-20250129.png)
-```
-
-**场景2：找到技能（项目级）**
-
-```
-AI: 我会添加一个流程图。
-    🔍 智能搜索smart-image-generator技能...
-    ✅ 找到技能（项目级）: ./skills/custom-skills/smart-image-generator
-
-    正在生成流程图...
-```
-
-**场景3：未找到技能**
-
-```
-AI: 我会添加一个时序图。
-    🔍 智能搜索smart-image-generator技能...
-    ❌ 未找到smart-image-generator技能
-
-    📍 已搜索的位置：
-       1. 用户级: ~/.cursor/skills/
-       2. 项目级: ./skills/
-       3. 相对路径搜索
-       4. 全局向上搜索
-
-    💡 将使用Mermaid代码作为回退方案
-
-    [插入Mermaid代码块]
-```
-
-### 批量转换Markdown图表
-
-支持将现有文章中的Mermaid/PlantUML等Markdown图表转换为图片：
+完成后运行：
 
 ```bash
-python scripts/convert_diagrams.py --article-file article.md
+python scripts/format_citations.py \
+  --article-file <article.md> \
+  --citations <article.materials.json> \
+  --output <article-cited.md>
 ```
 
-这会：
+没有外部引用时不要创建空的引用列表。
 
-1. 扫描文章中的所有代码块图表（Mermaid、PlantUML等）
-2. 使用`smart-image-generator`技能将它们转换为图片
-3. 替换原始代码块为图片引用
-4. 保留原始代码块在注释中（可选）
+### 9. 两遍去 AI 味
 
-## 智能升级
+按照 [anti-ai-patterns.md](references/anti-ai-patterns.md) 执行：
 
-当用户输入以下命令时，触发智能升级：
+1. 第一遍按高权重到低权重审计并重写，用事实、场景、数据和明确判断替换套话。
+2. 第二遍从头复读，检查重写是否破坏技术含义、引用、逻辑和作者语气。
 
-- `升级技能`
-- `分析文章生成模式`
-- `复盘文章会话记录`
+运行检测器：
 
-系统将：
+```bash
+python scripts/humanize_check.py \
+  --article-file <article.md> \
+  --threshold 40 \
+  --verbose
+```
 
-1. 扫描所有会话记录
-2. 分析文章生成模式和质量趋势
-3. 生成技能优化提案（而非提示词优化）
-4. 等待用户确认后执行
+不要为降低评分机械删词。准确术语、必要总结和引用原文可保留。
 
-## 重要提醒
+### 10. 发布门禁
 
-⚠️ **整篇重新生成机制**：
+运行统一检查：
 
-- 任何修改都必须触发全文检查
-- 确保总结与内容一致
-- 防止局部修改导致的叙述混乱
-- 每次都要重新验证Markdown格式
+```bash
+python scripts/check_article_quality.py \
+  --article-file <article.md> \
+  --style-profile references/style-profiles/default-sanqi.yaml \
+  --report <quality-report.json>
+```
 
-⚠️ **独立文件机制**：
+只有以下条件满足时才声明文章完成：
 
-- 封面图片提示词必须单独生成文件
-- 文章摘要必须单独生成文件
-- 便于后续使用和管理
+- 一级标题唯一，Markdown 与代码块闭合。
+- 结构完整，段落和示例不是占位符。
+- AI 痕迹评分不高于 40。
+- 引用编号连续且文末条目齐全。
+- 风格 profile 的禁用表达、句长和段落节奏检查通过。
+- 关键技术结论与引用已人工复核。
+
+检查失败时修复具体问题后重跑，不要用“整体润色”掩盖失败项。
+
+### 11. 生成配套内容
+
+需要时运行：
+
+```bash
+python scripts/generate_cover_prompt.py --article-file <article.md> --output <cover-prompt.txt>
+python scripts/generate_summary.py --article-file <article.md> --output <summary.md>
+python scripts/record_session.py \
+  --article-file <article.md> \
+  --quality-score <score> \
+  --style-profile <profile-name> \
+  --version-count <count>
+```
+
+## 修改现有文章
+
+不要默认全文重写。使用以下增量流程：
+
+### 1. 修改前快照
+
+```bash
+python scripts/version_manager.py \
+  --action snapshot \
+  --article-file <article.md> \
+  --note "修改前：<用户要求摘要>"
+```
+
+### 2. 影响分析
+
+```bash
+python scripts/version_manager.py \
+  --action smart-edit \
+  --article-file <article.md> \
+  --edit-description "<用户要求>"
+```
+
+把章节分为：
+
+- `regenerate`：直接受影响，允许重写。
+- `consistency_check`：逻辑上下游，只检查并做必要微调。
+- `skip`：无关章节，保持原文。
+
+脚本按标题关键词做初筛；Claude 还要根据动态大纲依赖和正文逻辑修正分组。
+
+### 3. 局部编辑
+
+只修改前两组。保留未受影响段落的措辞、引用编号和作者风格。若修改改变核心结论，再扩大影响范围并说明原因。
+
+### 4. 差异与复查
+
+修改后再创建快照，然后输出差异：
+
+```bash
+python scripts/version_manager.py --action snapshot --article-file <article.md> --note "完成修改"
+python scripts/version_manager.py --action diff --article-file <article.md> --version <修改前版本>
+```
+
+向用户报告：重写了哪些章节、一致性调整了哪些章节、跳过了哪些章节，以及质量门禁结果。
+
+### 5. 回滚
+
+用户明确要求回滚时执行：
+
+```bash
+python scripts/version_manager.py \
+  --action rollback \
+  --article-file <article.md> \
+  --version <N>
+```
+
+回滚前脚本会自动保存当前内容。每篇文章默认保留最近 10 个版本。
+
+## 交付格式
+
+新文章至少交付：
+
+- Markdown 正文
+- 使用的风格 profile 名称
+- 调研素材卡（执行联网调研时）
+- 质量检查结果
+- 本次版本号
+
+修改文章额外交付 diff 摘要。不要声称已验证没有实际运行过的脚本或检查。
+
+## 核心原则
+
+1. **事实先于文采**：不确定的事实先调研，无法验证就标注限制。
+2. **结构服务论点**：黄金五段式是默认，不是不可改变的模板。
+3. **风格可描述、不可表演**：profile 控制节奏，不制造虚假经历。
+4. **局部修改保持稳定**：小修改不应让整篇文章面目全非。
+5. **评分是门禁，不是目标**：检测器帮助发现模式，最终判断仍看准确性和可读性。

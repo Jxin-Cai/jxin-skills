@@ -14,10 +14,15 @@ python record_session.py --article-file article.md --metadata metadata.json
 
 import argparse
 import json
+import re
+import sys
 import uuid
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Optional
+
+sys.path.insert(0, str(Path(__file__).parent))
+from shared import count_chinese_chars, detect_article_type, estimate_reading_time, extract_title
 
 
 class SessionRecorder:
@@ -39,24 +44,12 @@ class SessionRecorder:
     
     def _detect_article_type(self) -> str:
         """检测文章类型"""
-        content = self.article_content.lower()
-        
-        if any(word in content for word in ['概念', '介绍', '什么是', '基础']):
-            return "科普型"
-        elif any(word in content for word in ['问题', '解决', '优化', '改进']):
-            return "问题解决型"
-        elif any(word in content for word in ['经验', '实践', '项目', '复盘']):
-            return "经验总结型"
-        elif any(word in content for word in ['趋势', '未来', '发展', '预测']):
-            return "趋势分析型"
-        else:
-            return "综合型"
-    
+        return detect_article_type(self.article_content)
+
     def _extract_title(self) -> str:
         """提取文章标题"""
-        import re
-        match = re.search(r'^#\s+(.+)$', self.article_content, re.MULTILINE)
-        return match.group(1).strip() if match else "未知标题"
+        title = extract_title(self.article_content)
+        return title if title != "未命名文章" else "未知标题"
     
     def _calculate_quality_metrics(self) -> Dict:
         """计算质量指标"""
@@ -129,7 +122,9 @@ class SessionRecorder:
                 "content_choices": self.metadata.get("content_choices", "基于主题分析"),
                 "example_selection": self.metadata.get("example_selection", "由浅入深"),
                 "diagram_rationale": self.metadata.get("diagram_rationale", "辅助理解核心概念"),
-                "writing_style": self.metadata.get("writing_style", "认知台阶+画面感")
+                "writing_style": self.metadata.get("writing_style", "认知台阶+画面感"),
+                "style_profile": self.metadata.get("style_profile", "default-sanqi"),
+                "version_count": self.metadata.get("version_count", 1)
             },
             
             "quality_metrics": quality_metrics,
@@ -188,6 +183,9 @@ def main():
     parser = argparse.ArgumentParser(description='记录文章生成会话')
     parser.add_argument('--article-file', required=True, help='文章Markdown文件路径')
     parser.add_argument('--metadata', help='元数据JSON文件路径')
+    parser.add_argument('--style-profile', default='default-sanqi', help='使用的风格 profile 名称')
+    parser.add_argument('--version-count', type=int, default=1, help='文章当前版本数')
+    parser.add_argument('--quality-score', type=float, help='统一质量检查分数（可选）')
     parser.add_argument('--output-dir', default='.tech-article-writer/sessions',
                        help='会话记录输出目录（根目录）')
     
@@ -203,7 +201,11 @@ def main():
     if args.metadata and Path(args.metadata).exists():
         with open(args.metadata, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
-    
+    metadata["style_profile"] = args.style_profile
+    metadata["version_count"] = args.version_count
+    if args.quality_score is not None:
+        metadata["quality_score"] = args.quality_score
+
     # 创建会话记录
     recorder = SessionRecorder(args.article_file, metadata)
     recorder.save_session(args.output_dir)

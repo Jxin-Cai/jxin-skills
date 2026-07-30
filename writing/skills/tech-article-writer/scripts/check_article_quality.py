@@ -1,441 +1,329 @@
 #!/usr/bin/env python3
-"""
-文章质量检查脚本
-
-功能：
-1. Markdown格式检查
-2. 文章结构完整性检查
-3. 内容质量评估
-4. 生成质量报告
-
-使用方法：
-python check_article_quality.py --article-file article.md --report report.json
-"""
+"""统一检查技术文章的格式、结构、内容、引用、风格与 AI 痕迹。"""
 
 import argparse
-import re
 import json
-from pathlib import Path
+import re
+import sys
 from datetime import datetime
-from typing import Dict, List, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional
+
+sys.path.insert(0, str(Path(__file__).parent))
+from humanize_check import AIPatternDetector
+from shared import (
+    count_chinese_chars,
+    detect_article_type,
+    estimate_reading_time,
+    extract_h2_headings,
+    extract_title,
+    read_article,
+)
 
 
 class ArticleQualityChecker:
-    """文章质量检查器"""
-    
-    def __init__(self, article_file: str):
+    """文章质量检查器。"""
+
+    def __init__(
+        self,
+        article_file: str,
+        style_profile: Optional[str] = None,
+        ai_threshold: int = 40,
+    ):
         self.article_file = Path(article_file)
-        self.article_content = self._read_article()
-        self.errors = []
-        self.warnings = []
-        self.info = []
-        
-    def _read_article(self) -> str:
-        """读取文章内容"""
-        with open(self.article_file, 'r', encoding='utf-8') as f:
-            return f.read()
-    
-    def check_all(self) -> Dict:
-        """执行所有检查"""
-        results = {
-            "file": str(self.article_file),
-            "checked_at": datetime.now().isoformat(),
-            "checks": {}
+        self.article_content = read_article(self.article_file)
+        self.style_profile = Path(style_profile) if style_profile else None
+        self.ai_threshold = ai_threshold
+
+    def check_all(self) -> Dict[str, object]:
+        """执行所有检查并生成综合结果。"""
+        checks = {
+            "basic": self.check_basic_info(),
+            "markdown": self.check_markdown_format(),
+            "structure": self.check_article_structure(),
+            "content": self.check_content_quality(),
+            "ai_patterns": self.check_ai_patterns(),
+            "citations": self.check_citations(),
+            "style": self.check_style_profile(),
         }
-        
-        # 1. Markdown格式检查
-        results["checks"]["markdown_syntax"] = self._check_markdown_syntax()
-        
-        # 2. 文章结构检查
-        results["checks"]["article_structure"] = self._check_article_structure()
-        
-        # 3. 内容质量检查
-        results["checks"]["content_quality"] = self._check_content_quality()
-        
-        # 4. 必备元素检查
-        results["checks"]["required_elements"] = self._check_required_elements()
-        
-        # 汇总结果
-        results["summary"] = {
-            "errors": len(self.errors),
-            "warnings": len(self.warnings),
-            "info": len(self.info),
-            "passed": len(self.errors) == 0
-        }
-        
-        results["details"] = {
-            "errors": self.errors,
-            "warnings": self.warnings,
-            "info": self.info
-        }
-        
-        return results
-    
-    def _check_markdown_syntax(self) -> Dict:
-        """检查Markdown语法"""
-        issues = []
-        
-        # 1. 检查代码块配对
-        code_blocks = re.findall(r'```', self.article_content)
-        if len(code_blocks) % 2 != 0:
-            self.errors.append({
-                "type": "markdown_syntax",
-                "severity": "error",
-                "message": f"代码块未配对，发现{len(code_blocks)}个```标记（应为偶数）",
-                "suggestion": "检查是否有代码块未闭合"
-            })
-            issues.append("代码块未配对")
-        
-        # 2. 检查代码块语言标识
-        unnamed_blocks = re.findall(r'\n```\s*\n', self.article_content)
-        if unnamed_blocks:
-            self.warnings.append({
-                "type": "markdown_syntax",
-                "severity": "warning",
-                "message": f"发现{len(unnamed_blocks)}个未指定语言的代码块",
-                "suggestion": "为每个代码块添加语言标识（如```java）"
-            })
-            issues.append("代码块缺少语言标识")
-        
-        # 3. 检查列表格式
-        bad_list_pattern = r'[^\n]\n[-*]\s+'
-        bad_lists = re.findall(bad_list_pattern, self.article_content)
-        if bad_lists:
-            self.warnings.append({
-                "type": "markdown_syntax",
-                "severity": "warning",
-                "message": f"发现{len(bad_lists)}处列表格式可能不正确",
-                "suggestion": "确保列表前后有空行"
-            })
-            issues.append("列表格式")
-        
-        # 4. 检查标题层级
-        headings = re.findall(r'^(#{1,6})\s+', self.article_content, re.MULTILINE)
-        prev_level = 0
-        for h in headings:
-            level = len(h)
-            if level > prev_level + 1 and prev_level > 0:
-                self.warnings.append({
-                    "type": "markdown_syntax",
-                    "severity": "warning",
-                    "message": f"标题层级跳跃：从{prev_level}级跳到{level}级",
-                    "suggestion": "标题层级应连续递增"
-                })
-                issues.append("标题层级跳跃")
-                break
-            prev_level = level
-        
-        # 5. 检查文件结尾
-        if not self.article_content.endswith('\n'):
-            self.warnings.append({
-                "type": "markdown_syntax",
-                "severity": "warning",
-                "message": "文件未以换行符结尾",
-                "suggestion": "在文件末尾添加一个换行符"
-            })
-            issues.append("文件结尾格式")
-        
+        passed = all(result["passed"] for result in checks.values())
         return {
-            "passed": len([e for e in self.errors if e["type"] == "markdown_syntax"]) == 0,
-            "issues_found": issues
+            "article_file": str(self.article_file),
+            "checked_at": datetime.now().isoformat(timespec="seconds"),
+            "passed": passed,
+            "checks": checks,
         }
-    
-    def _check_article_structure(self) -> Dict:
-        """检查文章结构"""
-        issues = []
-        
-        # 检查黄金五段式结构
-        required_sections = {
-            "场景引入": False,
-            "概念": False,  # 概念引出或破俗立新
-            "深度": False,  # 深度阐释
-            "应用": False,  # 举一反三
-            "总结": False   # 总结回顾
-        }
-        
-        # 提取所有二级标题
-        h2_headings = re.findall(r'^##\s+(.+)$', self.article_content, re.MULTILINE)
-        
-        # 简单的关键词匹配
-        for heading in h2_headings:
-            heading_lower = heading.lower()
-            if any(word in heading_lower for word in ['场景', '引入', '背景']):
-                required_sections["场景引入"] = True
-            if any(word in heading_lower for word in ['概念', '定义', '什么是']):
-                required_sections["概念"] = True
-            if any(word in heading_lower for word in ['深入', '原理', '机制', '工作']):
-                required_sections["深度"] = True
-            if any(word in heading_lower for word in ['应用', '实例', '例子', '案例']):
-                required_sections["应用"] = True
-            if any(word in heading_lower for word in ['总结', '回顾', '小结']):
-                required_sections["总结"] = True
-        
-        # 检查缺失的部分
-        missing_sections = [k for k, v in required_sections.items() if not v]
-        if missing_sections:
-            self.warnings.append({
-                "type": "article_structure",
-                "severity": "warning",
-                "message": f"可能缺少以下结构部分: {', '.join(missing_sections)}",
-                "suggestion": "确保文章包含黄金五段式的所有部分"
-            })
-            issues.extend(missing_sections)
-        
+
+    def check_basic_info(self) -> Dict[str, object]:
+        """统计标题、类型、字数与阅读时长。"""
+        char_count = count_chinese_chars(self.article_content)
+        title = extract_title(self.article_content)
+        issues: List[str] = []
+        if title == "未命名文章":
+            issues.append("缺少一级标题")
+        if char_count < 1200:
+            issues.append(f"正文偏短：{char_count} 字，建议至少 1200 字")
+        if char_count > 8000:
+            issues.append(f"正文偏长：{char_count} 字，建议拆分或启用动态大纲")
         return {
-            "passed": len(missing_sections) <= 1,  # 允许缺少一个部分
-            "five_sections_complete": len(missing_sections) == 0,
-            "missing_sections": missing_sections
+            "passed": title != "未命名文章" and char_count >= 1200,
+            "title": title,
+            "article_type": detect_article_type(self.article_content),
+            "chinese_chars": char_count,
+            "reading_minutes": round(estimate_reading_time(self.article_content), 1),
+            "issues": issues,
         }
-    
-    def _check_content_quality(self) -> Dict:
-        """检查内容质量"""
-        issues = []
-        
-        # 1. 检查文章长度
-        word_count = len(self.article_content)
-        char_count_chinese = len(re.findall(r'[\u4e00-\u9fff]', self.article_content))
-        
-        # 估算阅读时长（中文400字/分钟）
-        reading_time = char_count_chinese / 400
-        
-        if reading_time < 8:
-            self.info.append({
-                "type": "content_quality",
-                "severity": "info",
-                "message": f"文章较短，预计阅读时长{reading_time:.1f}分钟（目标8-12分钟）",
-                "suggestion": "考虑增加内容深度或更多实例"
-            })
-            issues.append("文章偏短")
-        elif reading_time > 12:
-            self.info.append({
-                "type": "content_quality",
-                "severity": "info",
-                "message": f"文章较长，预计阅读时长{reading_time:.1f}分钟（目标8-12分钟）",
-                "suggestion": "考虑精简内容或拆分为多篇"
-            })
-            issues.append("文章偏长")
-        
-        # 2. 检查代码示例数量
-        code_blocks = re.findall(r'```[\w]*\n.*?```', self.article_content, re.DOTALL)
-        if len(code_blocks) < 3:
-            self.warnings.append({
-                "type": "content_quality",
-                "severity": "warning",
-                "message": f"代码示例较少（{len(code_blocks)}个），建议3-5个",
-                "suggestion": "增加更多具体的代码示例"
-            })
-            issues.append("代码示例不足")
-        
-        # 3. 检查图表
-        mermaid_diagrams = re.findall(r'```mermaid', self.article_content)
-        plantuml_diagrams = re.findall(r'```plantuml', self.article_content)
-        total_diagrams = len(mermaid_diagrams) + len(plantuml_diagrams)
-        
-        if total_diagrams == 0:
-            self.warnings.append({
-                "type": "content_quality",
-                "severity": "warning",
-                "message": "未发现Mermaid或PlantUML图表",
-                "suggestion": "至少添加1个流程图或架构图"
-            })
-            issues.append("缺少图表")
-        
+
+    def check_markdown_format(self) -> Dict[str, object]:
+        """检查标题、代码块、列表与图片格式。"""
+        issues: List[str] = []
+        h1_count = len(re.findall(r"^#\s+.+$", self.article_content, re.MULTILINE))
+        if h1_count != 1:
+            issues.append(f"一级标题应恰好 1 个，当前为 {h1_count} 个")
+        if self.article_content.count("```") % 2:
+            issues.append("代码块围栏未成对闭合")
+        if re.search(r"^\s*[-*]\s*\[[xX ]\]\s*$", self.article_content, re.MULTILINE):
+            issues.append("发现空的任务列表项")
+        image_issues = [
+            match.group(0)
+            for match in re.finditer(r"!\[\]\([^)]*\)", self.article_content)
+        ]
+        if image_issues:
+            issues.append("存在缺少 alt 文本的图片")
         return {
-            "passed": len([w for w in self.warnings if w["type"] == "content_quality"]) == 0,
-            "reading_time_minutes": round(reading_time, 1),
-            "code_blocks_count": len(code_blocks),
-            "diagrams_count": total_diagrams,
-            "issues_found": issues
+            "passed": not issues,
+            "h1_count": h1_count,
+            "h2_count": len(extract_h2_headings(self.article_content)),
+            "code_block_count": self.article_content.count("```") // 2,
+            "issues": issues,
         }
-    
-    def _check_required_elements(self) -> Dict:
-        """检查必备元素"""
-        issues = []
-        
-        # 1. 检查标准文章抬头
-        has_author = re.search(r'\*\*文\s*\|\s*三七\*\*', self.article_content)
-        if not has_author:
-            self.errors.append({
-                "type": "required_elements",
-                "severity": "error",
-                "message": "缺少标准作者信息",
-                "suggestion": '添加"**文 | 三七**（转载请注明出处）"'
-            })
-            issues.append("作者信息")
-        
-        # 2. 检查产品口号
-        has_motto = re.search(r'不积跬步无以至千里', self.article_content)
-        if not has_motto:
-            self.errors.append({
-                "type": "required_elements",
-                "severity": "error",
-                "message": "缺少产品标识口号",
-                "suggestion": '添加"> **不积跬步无以至千里，欢迎来到AI时代的编码实战课**"'
-            })
-            issues.append("产品口号")
-        
-        # 3. 检查封面图片提示词占位符
-        has_cover_prompt = re.search(r'🎨\s*封面图片提示词', self.article_content)
-        if not has_cover_prompt:
-            self.warnings.append({
-                "type": "required_elements",
-                "severity": "warning",
-                "message": "缺少封面图片提示词部分",
-                "suggestion": "添加封面图片提示词占位符"
-            })
-            issues.append("封面提示词")
-        
-        # 4. 检查文章摘要
-        has_summary = re.search(r'📝\s*文章摘要', self.article_content)
-        if not has_summary:
-            self.warnings.append({
-                "type": "required_elements",
-                "severity": "warning",
-                "message": "缺少文章摘要部分",
-                "suggestion": "添加文章摘要占位符"
-            })
-            issues.append("文章摘要")
-        
-        # 5. 检查知识图谱
-        has_knowledge_graph = re.search(r'知识图谱|```mermaid', self.article_content)
-        if not has_knowledge_graph:
-            self.warnings.append({
-                "type": "required_elements",
-                "severity": "warning",
-                "message": "缺少知识图谱",
-                "suggestion": "在总结部分添加Mermaid知识图谱"
-            })
-            issues.append("知识图谱")
-        
-        # 6. 检查"一句话精华"
-        has_key_message = re.search(r'如果今天你只记得一句话', self.article_content)
-        if not has_key_message:
-            self.warnings.append({
-                "type": "required_elements",
-                "severity": "warning",
-                "message": "缺少'如果今天你只记得一句话'部分",
-                "suggestion": "在总结部分添加一句话精华"
-            })
-            issues.append("一句话精华")
-        
-        # 7. 检查延伸阅读
-        has_references = re.search(r'延伸阅读|参考文献|引用', self.article_content)
-        if not has_references:
-            self.warnings.append({
-                "type": "required_elements",
-                "severity": "warning",
-                "message": "缺少延伸阅读部分",
-                "suggestion": "添加3-5篇权威文章引用"
-            })
-            issues.append("延伸阅读")
-        
+
+    def check_article_structure(self) -> Dict[str, object]:
+        """检查黄金五段式或动态大纲的关键结构。"""
+        headings = extract_h2_headings(self.article_content)
+        issues: List[str] = []
+        if len(headings) < 5:
+            issues.append(f"二级章节不足：当前 {len(headings)} 个，建议至少 5 个")
+
+        structure_signals = {
+            "introduction": ("开场", "引言", "场景", "背景", "为什么"),
+            "concept": ("概念", "是什么", "原理", "基础"),
+            "analysis": ("解析", "深入", "机制", "架构", "实现"),
+            "practice": ("实践", "案例", "实战", "示例", "代码"),
+            "conclusion": ("总结", "结语", "升华", "展望"),
+        }
+        matched = {
+            name: any(any(keyword in heading for keyword in keywords) for heading in headings)
+            for name, keywords in structure_signals.items()
+        }
+        missing = [name for name, found in matched.items() if not found]
+        if len(missing) >= 3:
+            issues.append("章节语义未体现黄金五段式，也未展示明确的动态大纲结构")
         return {
-            "passed": len([e for e in self.errors if e["type"] == "required_elements"]) == 0,
-            "missing_elements": issues
+            "passed": len(headings) >= 5 and len(missing) < 3,
+            "headings": headings,
+            "matched_sections": matched,
+            "issues": issues,
         }
-    
-    def print_report(self):
-        """打印质量报告"""
-        results = self.check_all()
-        
-        print("\n" + "="*80)
-        print(f"📋 文章质量检查报告")
-        print("="*80)
-        print(f"文件: {results['file']}")
-        print(f"检查时间: {results['checked_at']}")
-        print()
-        
-        # 总体结果
-        summary = results['summary']
-        status = "✅ 通过" if summary['passed'] else "❌ 未通过"
-        print(f"总体结果: {status}")
-        print(f"  错误: {summary['errors']}")
-        print(f"  警告: {summary['warnings']}")
-        print(f"  提示: {summary['info']}")
-        print()
-        
-        # 各项检查结果
-        print("详细检查结果:")
-        print("-" * 80)
-        
-        for check_name, check_result in results['checks'].items():
-            status = "✅" if check_result['passed'] else "❌"
-            print(f"{status} {check_name}")
-            if 'issues_found' in check_result and check_result['issues_found']:
-                print(f"   问题: {', '.join(check_result['issues_found'])}")
-        
-        print()
-        
-        # 详细问题列表
-        if self.errors:
-            print("❌ 错误列表:")
-            for i, error in enumerate(self.errors, 1):
-                print(f"  {i}. {error['message']}")
-                print(f"     建议: {error['suggestion']}")
-            print()
-        
-        if self.warnings:
-            print("⚠️  警告列表:")
-            for i, warning in enumerate(self.warnings, 1):
-                print(f"  {i}. {warning['message']}")
-                print(f"     建议: {warning['suggestion']}")
-            print()
-        
-        if self.info:
-            print("ℹ️  提示信息:")
-            for i, info in enumerate(self.info, 1):
-                print(f"  {i}. {info['message']}")
-            print()
-        
-        # 内容质量指标
-        if 'content_quality' in results['checks']:
-            cq = results['checks']['content_quality']
-            print("📊 内容质量指标:")
-            print(f"  预计阅读时长: {cq['reading_time_minutes']} 分钟")
-            print(f"  代码示例数量: {cq['code_blocks_count']}")
-            print(f"  图表数量: {cq['diagrams_count']}")
-            print()
-        
-        print("="*80)
-        
-        return results
-    
-    def save_report(self, output_file: str):
-        """保存报告到JSON文件"""
-        results = self.check_all()
-        
-        output_path = Path(output_file)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(results, f, ensure_ascii=False, indent=2)
-        
-        print(f"✅ 质量报告已保存: {output_path}")
+
+    def check_content_quality(self) -> Dict[str, object]:
+        """检查代码示例、段落节奏和未完成占位符。"""
+        issues: List[str] = []
+        placeholders = re.findall(r"\[(?:请|待|TODO|示例|标题|内容)[^\]]*\]", self.article_content, re.IGNORECASE)
+        if placeholders:
+            issues.append(f"存在 {len(placeholders)} 个未完成占位符")
+
+        paragraphs = [
+            paragraph.strip()
+            for paragraph in re.split(r"\n\s*\n", self.article_content)
+            if count_chinese_chars(paragraph) >= 20 and not paragraph.lstrip().startswith(("#", ">", "```"))
+        ]
+        long_paragraphs = [p for p in paragraphs if count_chinese_chars(p) > 350]
+        if long_paragraphs:
+            issues.append(f"存在 {len(long_paragraphs)} 个超过 350 字的长段落")
+
+        code_blocks = re.findall(r"```[^\n]*\n.*?```", self.article_content, re.DOTALL)
+        if not code_blocks:
+            issues.append("技术文章没有代码或命令示例")
+        return {
+            "passed": not placeholders and bool(code_blocks),
+            "placeholder_count": len(placeholders),
+            "long_paragraph_count": len(long_paragraphs),
+            "code_block_count": len(code_blocks),
+            "issues": issues,
+        }
+
+    def check_ai_patterns(self) -> Dict[str, object]:
+        """复用三层权重检测器检查 AI 写作模式。"""
+        report = AIPatternDetector(self.article_content).analyze()
+        score = int(report["score"])
+        top_hits = report["hits"][:8]
+        issues = [
+            f"AI 痕迹评分 {score} 高于阈值 {self.ai_threshold}"
+        ] if score > self.ai_threshold else []
+        return {
+            "passed": score <= self.ai_threshold,
+            "score": score,
+            "threshold": self.ai_threshold,
+            "level": report["level"],
+            "top_hits": top_hits,
+            "issues": issues,
+        }
+
+    def check_citations(self) -> Dict[str, object]:
+        """检查正文引用编号和文末参考引用是否对应。"""
+        body, _, reference_section = self.article_content.partition("## 参考引用")
+        used = sorted({int(value) for value in re.findall(r"(?<!\])\[(\d+)\](?!\()", body)})
+        listed = sorted({int(value) for value in re.findall(r"^\[(\d+)\]\s+", reference_section, re.MULTILINE)})
+        issues: List[str] = []
+        if used:
+            expected = list(range(1, max(used) + 1))
+            gaps = [number for number in expected if number not in used]
+            missing = [number for number in used if number not in listed]
+            if gaps:
+                issues.append(f"正文引用编号不连续：缺少 {gaps}")
+            if missing:
+                issues.append(f"参考引用节缺少编号：{missing}")
+            if not reference_section:
+                issues.append("正文有引用标记，但缺少参考引用节")
+        elif reference_section.strip():
+            issues.append("参考引用节存在条目，但正文没有引用标记")
+        return {
+            "passed": not issues,
+            "used": used,
+            "listed": listed,
+            "issues": issues,
+            "note": "文章未使用外部引用" if not used and not reference_section.strip() else "",
+        }
+
+    def check_style_profile(self) -> Dict[str, object]:
+        """检查 profile 中可确定验证的句长、段长和禁用词。"""
+        if not self.style_profile:
+            return {
+                "passed": True,
+                "profile": None,
+                "issues": [],
+                "note": "未指定 profile，按 SKILL.md 默认风格执行人工审校",
+            }
+        if not self.style_profile.exists():
+            return {
+                "passed": False,
+                "profile": str(self.style_profile),
+                "issues": ["风格 profile 不存在"],
+            }
+
+        profile_text = self.style_profile.read_text(encoding="utf-8")
+        sentence_limit = self._yaml_int(profile_text, "sentence_max_length", 45)
+        paragraph_limit = self._yaml_int(profile_text, "paragraph_max_sentences", 6)
+        forbidden = self._yaml_list(profile_text, "forbidden_phrases")
+        plain = re.sub(r"```.*?```", "", self.article_content, flags=re.DOTALL)
+        sentences = [count_chinese_chars(item) for item in re.split(r"[。！？]", plain) if count_chinese_chars(item) >= 4]
+        paragraphs = [item for item in re.split(r"\n\s*\n", plain) if count_chinese_chars(item) >= 20]
+        too_long_sentences = sum(length > sentence_limit for length in sentences)
+        too_long_paragraphs = sum(len(re.findall(r"[。！？]", item)) > paragraph_limit for item in paragraphs)
+        forbidden_hits = {term: plain.count(term) for term in forbidden if term and term in plain}
+        issues: List[str] = []
+        if forbidden_hits:
+            issues.append(f"命中禁用表达：{forbidden_hits}")
+        if too_long_sentences > max(3, len(sentences) // 10):
+            issues.append(f"超过句长软上限的句子过多：{too_long_sentences} 句")
+        if too_long_paragraphs:
+            issues.append(f"超过段落句数上限：{too_long_paragraphs} 段")
+        return {
+            "passed": not issues,
+            "profile": str(self.style_profile),
+            "sentence_limit": sentence_limit,
+            "paragraph_limit": paragraph_limit,
+            "forbidden_hits": forbidden_hits,
+            "issues": issues,
+        }
+
+    @staticmethod
+    def _yaml_int(content: str, key: str, default: int) -> int:
+        match = re.search(rf"^{re.escape(key)}:\s*(\d+)\s*$", content, re.MULTILINE)
+        return int(match.group(1)) if match else default
+
+    @staticmethod
+    def _yaml_list(content: str, key: str) -> List[str]:
+        match = re.search(
+            rf"^{re.escape(key)}:\s*\n((?:\s+-\s+.*\n?)*)",
+            content,
+            re.MULTILINE,
+        )
+        if not match:
+            return []
+        return [
+            item.strip().strip('"\'')
+            for item in re.findall(r"^\s+-\s+(.+)$", match.group(1), re.MULTILINE)
+        ]
 
 
-def main():
-    parser = argparse.ArgumentParser(description='检查文章质量')
-    parser.add_argument('--article-file', required=True, help='文章Markdown文件路径')
-    parser.add_argument('--report', help='输出报告文件路径（JSON格式）')
-    
+def print_report(report: Dict[str, object]) -> None:
+    """输出人类可读报告。"""
+    print("\n" + "=" * 64)
+    print("技术文章质量检查")
+    print("=" * 64)
+    labels = {
+        "basic": "基础信息",
+        "markdown": "Markdown 格式",
+        "structure": "文章结构",
+        "content": "内容质量",
+        "ai_patterns": "AI 痕迹",
+        "citations": "引用完整性",
+        "style": "风格合规",
+    }
+    for name, result in report["checks"].items():
+        icon = "✅" if result["passed"] else "❌"
+        print(f"\n{icon} {labels[name]}")
+        if name == "basic":
+            print(f"   标题: {result['title']}")
+            print(f"   类型: {result['article_type']}")
+            print(f"   字数: {result['chinese_chars']}，阅读约 {result['reading_minutes']} 分钟")
+        elif name == "ai_patterns":
+            print(f"   评分: {result['score']}/100，阈值: {result['threshold']}")
+        elif name == "citations":
+            print(f"   正文引用: {result['used']}，参考列表: {result['listed']}")
+        elif name == "style" and result.get("profile"):
+            print(f"   Profile: {result['profile']}")
+        for issue in result.get("issues", []):
+            print(f"   - {issue}")
+        if result.get("note"):
+            print(f"   ℹ️ {result['note']}")
+    print("\n" + ("✅ 质量门禁通过" if report["passed"] else "❌ 质量门禁未通过"))
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="检查技术文章质量")
+    parser.add_argument("--article-file", required=True, help="Markdown 文章路径")
+    parser.add_argument("--report", help="JSON 报告输出路径")
+    parser.add_argument("--style-profile", help="风格 profile YAML 路径")
+    parser.add_argument("--ai-threshold", type=int, default=40, help="AI 痕迹通过阈值，默认 40")
     args = parser.parse_args()
-    
-    # 检查文章文件是否存在
-    if not Path(args.article_file).exists():
-        print(f"❌ 错误: 文章文件不存在: {args.article_file}")
+
+    article_file = Path(args.article_file)
+    if not article_file.exists():
+        print(f"❌ 文件不存在: {article_file}")
         return 1
-    
-    # 执行质量检查
-    checker = ArticleQualityChecker(args.article_file)
-    results = checker.print_report()
-    
-    # 保存报告
+
+    try:
+        checker = ArticleQualityChecker(
+            args.article_file,
+            style_profile=args.style_profile,
+            ai_threshold=args.ai_threshold,
+        )
+        report = checker.check_all()
+    except (OSError, ValueError) as exc:
+        print(f"❌ 质量检查失败: {exc}")
+        return 1
+
+    print_report(report)
     if args.report:
-        checker.save_report(args.report)
-    
-    # 根据检查结果返回退出码
-    return 0 if results['summary']['passed'] else 1
+        report_file = Path(args.report)
+        report_file.parent.mkdir(parents=True, exist_ok=True)
+        report_file.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"💾 报告已保存: {report_file}")
+    return 0 if report["passed"] else 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

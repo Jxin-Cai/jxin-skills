@@ -1,0 +1,16 @@
+name: "正式技术文档"
+tone: "professional"
+humor_level: 2
+analogy_density: "low"
+sentence_max_length: 60
+paragraph_max_sentences: 8
+signature_phrases: []
+forbidden_phrases:
+  - "赋能"
+  - "拥抱变化"
+  - "生态闭环"
+code_comment_style: "english"
+transition_style: "explicit"
+opening_preference:
+  - "direct"
+  - "case"
