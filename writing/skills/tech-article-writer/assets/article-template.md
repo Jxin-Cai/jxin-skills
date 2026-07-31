@@ -7,13 +7,24 @@ version: 1
 
 # [文章标题]
 
-> **技术主题**：[一句话描述文章主题]
->
-> **阅读时长**：约 [X] 分钟
->
-> **适合读者**：[目标读者群体]
->
-> **核心收获**：[读完后能解决什么问题]
+**文 | 三七** （转载请注明出处）  
+**公众号：三七-编程实战**
+
+### 🎨 封面图片提示词
+
+<!-- 运行 python scripts/generate_cover_prompt.py --article-file article.md --output cover_prompt.txt 自动生成 -->
+
+[待生成]
+
+> **不积跬步无以至千里，欢迎来到AI时代的编码实战课**
+
+## 📝 文章摘要
+
+<!-- 运行 python scripts/generate_summary.py --article-file article.md --output summary.txt 自动生成 -->
+
+[待生成]
+
+---
 
 ## 第一段：场景引入
 
