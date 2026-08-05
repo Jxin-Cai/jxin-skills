@@ -7,7 +7,8 @@ build_html.py — 将结构化 JSON 内容注入 HTML 模板，生成自包含�
   2. 读取 sections.json（由 Claude 生成的结构化内容）
   3. 按 section type 渲染 HTML 片段
   4. 将本地图片转为 base64 data URI
-  5. 输出自包含单文件 HTML
+  5. 生成侧边导航
+  6. 输出自包含单文件 HTML（含代码高亮、Dark Mode、进度条）
 
 用法：
   python build_html.py --content sections.json --output presentation.html [--images-dir ./images]
@@ -28,7 +29,6 @@ ACCENT_COLORS = ["blue", "green", "purple", "red", "orange"]
 
 def img_to_base64(src, images_dir=None):
     """将图片路径或 URL 转为 base64 data URI。"""
-    path = None
     if src.startswith("data:"):
         return src
 
@@ -42,6 +42,7 @@ def img_to_base64(src, images_dir=None):
         except Exception:
             return src
 
+    path = None
     if images_dir:
         path = Path(images_dir) / src
     if not path or not path.exists():
@@ -59,12 +60,12 @@ def escape(text):
     return html.escape(str(text)) if text else ""
 
 
-def render_hero(section):
+def render_hero(section, **_):
     title = escape(section.get("title", ""))
     subtitle = escape(section.get("subtitle", ""))
     meta = escape(section.get("meta", ""))
     parts = [
-        '<div class="hero">',
+        '<div class="hero" data-nav-id="hero">',
         f'  <h1 class="hero-title animate-in">{title}</h1>',
     ]
     if subtitle:
@@ -75,11 +76,11 @@ def render_hero(section):
     return "\n".join(parts)
 
 
-def render_summary(section):
+def render_summary(section, **_):
     title = escape(section.get("title", ""))
     items = section.get("items", [])
     parts = [
-        '<div class="section">',
+        '<div class="section" data-nav-id="summary">',
         '  <div class="container">',
     ]
     if title:
@@ -95,7 +96,7 @@ def render_summary(section):
     return "\n".join(parts)
 
 
-def render_cards_grid(section, alt=False):
+def render_cards_grid(section, alt=False, nav_id="", **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
     subtitle = escape(section.get("subtitle", ""))
@@ -105,7 +106,7 @@ def render_cards_grid(section, alt=False):
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -134,14 +135,14 @@ def render_cards_grid(section, alt=False):
     return "\n".join(parts)
 
 
-def render_key_points(section, alt=False):
+def render_key_points(section, alt=False, nav_id="", **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
     items = section.get("items", [])
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -168,7 +169,7 @@ def render_key_points(section, alt=False):
     return "\n".join(parts)
 
 
-def render_comparison(section, alt=False):
+def render_comparison(section, alt=False, nav_id="", **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
     headers = section.get("headers", [])
@@ -176,7 +177,7 @@ def render_comparison(section, alt=False):
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -204,14 +205,14 @@ def render_comparison(section, alt=False):
     return "\n".join(parts)
 
 
-def render_flow(section, alt=False):
+def render_flow(section, alt=False, nav_id="", **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
     steps = section.get("steps", [])
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -237,15 +238,17 @@ def render_flow(section, alt=False):
     return "\n".join(parts)
 
 
-def render_code(section, alt=False):
+def render_code(section, alt=False, nav_id="", **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
-    language = escape(section.get("language", ""))
-    code = escape(section.get("code", ""))
+    language = section.get("language", "")
+    code = section.get("code", "")
 
     bg_class = "section-alt" if alt else ""
+    lang_class = f"language-{language}" if language else ""
+
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -254,15 +257,17 @@ def render_code(section, alt=False):
         parts.append(f'    <h2 class="section-heading animate-in">{title}</h2>')
     parts.append('    <div class="code-block animate-in">')
     if language:
-        parts.append(f'      <p class="code-block-label">{language}</p>')
-    parts.append(f'      <pre>{code}</pre>')
+        parts.append('      <div class="code-block-header">')
+        parts.append(f'        <span class="code-block-lang">{escape(language)}</span>')
+        parts.append('      </div>')
+    parts.append(f'      <pre><code class="{lang_class}">{escape(code)}</code></pre>')
     parts.append('    </div>')
     parts.append('  </div>')
     parts.append('</div>')
     return "\n".join(parts)
 
 
-def render_diagram(section, images_dir=None, alt=False):
+def render_diagram(section, alt=False, nav_id="", images_dir=None, **_):
     label = escape(section.get("label", ""))
     title = escape(section.get("title", ""))
     src = section.get("src", "")
@@ -273,7 +278,7 @@ def render_diagram(section, images_dir=None, alt=False):
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
     ]
     if label:
@@ -291,13 +296,13 @@ def render_diagram(section, images_dir=None, alt=False):
     return "\n".join(parts)
 
 
-def render_quote(section, alt=False):
+def render_quote(section, alt=False, nav_id="", **_):
     text = escape(section.get("text", ""))
     source = escape(section.get("source", ""))
 
     bg_class = "section-alt" if alt else ""
     parts = [
-        f'<div class="section {bg_class}">',
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
         '  <div class="container">',
         '    <div class="quote-block animate-in">',
         f'      <p class="quote-text">{text}</p>',
@@ -310,17 +315,87 @@ def render_quote(section, alt=False):
     return "\n".join(parts)
 
 
-def render_cta(section):
+def render_cta(section, nav_id="", **_):
     title = escape(section.get("title", ""))
     description = escape(section.get("description", ""))
     parts = [
-        '<div class="section">',
+        f'<div class="section" data-nav-id="{nav_id}">',
         '  <div class="container">',
         '    <div class="cta animate-in">',
         f'      <h2 class="cta-heading">{title}</h2>',
     ]
     if description:
         parts.append(f'      <p class="cta-desc">{description}</p>')
+    parts.append('    </div>')
+    parts.append('  </div>')
+    parts.append('</div>')
+    return "\n".join(parts)
+
+
+def render_stats(section, alt=False, nav_id="", **_):
+    label = escape(section.get("label", ""))
+    title = escape(section.get("title", ""))
+    items = section.get("items", [])
+    columns = min(len(items), 4) if items else 3
+
+    bg_class = "section-alt" if alt else ""
+    parts = [
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
+        '  <div class="container">',
+    ]
+    if label:
+        parts.append(f'    <p class="section-label animate-in">{label}</p>')
+    if title:
+        parts.append(f'    <h2 class="section-heading animate-in">{title}</h2>')
+    parts.append(f'    <div class="stats-grid stats-grid-{columns} stagger-group">')
+    for item in items:
+        value = escape(item.get("value", ""))
+        stat_label = escape(item.get("label", ""))
+        change = item.get("change", "")
+        change_dir = item.get("direction", "")
+        parts.append('      <div class="stat-card animate-in">')
+        parts.append(f'        <p class="stat-value">{value}</p>')
+        if stat_label:
+            parts.append(f'        <p class="stat-label">{stat_label}</p>')
+        if change:
+            direction_class = "stat-change-up" if change_dir == "up" else "stat-change-down" if change_dir == "down" else ""
+            parts.append(f'        <p class="stat-change {direction_class}">{escape(change)}</p>')
+        parts.append('      </div>')
+    parts.append('    </div>')
+    parts.append('  </div>')
+    parts.append('</div>')
+    return "\n".join(parts)
+
+
+def render_timeline(section, alt=False, nav_id="", **_):
+    label = escape(section.get("label", ""))
+    title = escape(section.get("title", ""))
+    items = section.get("items", [])
+
+    bg_class = "section-alt" if alt else ""
+    parts = [
+        f'<div class="section {bg_class}" data-nav-id="{nav_id}">',
+        '  <div class="container">',
+    ]
+    if label:
+        parts.append(f'    <p class="section-label animate-in">{label}</p>')
+    if title:
+        parts.append(f'    <h2 class="section-heading animate-in">{title}</h2>')
+    parts.append('    <div class="timeline stagger-group">')
+    for item in items:
+        date = escape(item.get("date", ""))
+        item_title = escape(item.get("title", ""))
+        desc = escape(item.get("description", ""))
+        parts.append('      <div class="timeline-item animate-in">')
+        parts.append('        <div class="timeline-content">')
+        if date:
+            parts.append(f'          <p class="timeline-date">{date}</p>')
+        if item_title:
+            parts.append(f'          <p class="timeline-title">{item_title}</p>')
+        if desc:
+            parts.append(f'          <p class="timeline-desc">{desc}</p>')
+        parts.append('        </div>')
+        parts.append('      </div>')
     parts.append('    </div>')
     parts.append('  </div>')
     parts.append('</div>')
@@ -338,7 +413,42 @@ RENDERERS = {
     "diagram": render_diagram,
     "quote": render_quote,
     "cta": render_cta,
+    "stats": render_stats,
+    "timeline": render_timeline,
 }
+
+
+def get_nav_title(section):
+    """获取 section 的导航标题。"""
+    section_type = section.get("type", "")
+    if section_type == "hero":
+        return section.get("title", "Home")[:15]
+    if section_type == "summary":
+        return section.get("title", "Summary")[:15] or "Summary"
+    if section_type == "cta":
+        return section.get("title", "End")[:15]
+    return (section.get("title", "") or section.get("label", "") or section_type)[:15]
+
+
+def generate_nav(sections):
+    """生成侧边导航 HTML。"""
+    parts = ['<nav class="side-nav" id="sideNav">']
+    for i, section in enumerate(sections):
+        nav_id = get_nav_id(section, i)
+        title = get_nav_title(section)
+        parts.append(f'  <div class="side-nav-dot" data-target="{nav_id}" data-title="{escape(title)}"></div>')
+    parts.append('</nav>')
+    return "\n".join(parts)
+
+
+def get_nav_id(section, index):
+    """为 section 生成唯一导航 ID。"""
+    section_type = section.get("type", "section")
+    if section_type == "hero":
+        return "hero"
+    if section_type == "summary":
+        return "summary"
+    return f"section-{index}"
 
 
 def render_sections(sections, images_dir=None):
@@ -352,15 +462,10 @@ def render_sections(sections, images_dir=None):
             continue
 
         alt = (i % 2 == 1) and section_type not in ("hero", "cta")
+        nav_id = get_nav_id(section, i)
 
-        if section_type == "hero":
-            html_parts.append(renderer(section))
-        elif section_type == "diagram":
-            html_parts.append(renderer(section, images_dir=images_dir, alt=alt))
-        elif section_type in ("cta", "summary"):
-            html_parts.append(renderer(section))
-        else:
-            html_parts.append(renderer(section, alt=alt))
+        kwargs = {"alt": alt, "nav_id": nav_id, "images_dir": images_dir}
+        html_parts.append(renderer(section, **kwargs))
 
     return "\n\n".join(html_parts)
 
@@ -377,8 +482,10 @@ def build(content_path, template_path, output_path, images_dir=None):
         template = f.read()
 
     sections_html = render_sections(sections, images_dir=images_dir)
+    nav_html = generate_nav(sections)
 
     result = template.replace("{{TITLE}}", escape(title))
+    result = result.replace("{{NAV_HTML}}", nav_html)
     result = result.replace("{{SECTIONS_HTML}}", sections_html)
 
     with open(output_path, "w", encoding="utf-8") as f:

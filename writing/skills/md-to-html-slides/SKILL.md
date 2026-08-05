@@ -7,7 +7,7 @@ description: 将 Markdown 文档转化为 HTML 长滚动演示页面。自动重
 
 将 Markdown 文档转化为一份精美的长滚动 HTML 演示页面——不是简单的格式转换，而是把线性文档重组为有节奏感的视觉叙事。
 
-输出是一个**自包含单文件 HTML**，内置样式和 GSAP 滚动动画，所有图片转为 base64 data URI，可以直接在浏览器打开或复制给别人。
+输出是一个**自包含单文件 HTML**，内置样式、GSAP 滚动动画、代码语法高亮、Dark Mode 切换、滚动进度条和侧边导航。所有图片转为 base64 data URI，可以直接在浏览器打开或复制给别人。
 
 ## 执行流程
 
@@ -50,6 +50,8 @@ description: 将 Markdown 文档转化为 HTML 长滚动演示页面。自动重
    - 代码块 → `code`
    - 图片 → `diagram`
    - 引用块 → `quote`
+   - 并列数字/KPI/指标 → `stats`
+   - 按时间排列的事件序列 → `timeline`
 6. **结尾处理**：最后一个 H2 如果是总结/展望性质 → `cta`
 
 **叙事节奏**：
@@ -62,7 +64,7 @@ description: 将 Markdown 文档转化为 HTML 长滚动演示页面。自动重
 为每个 section 选择最合适的 type。参考 `references/section-patterns.md` 获取完整的 type 列表和 JSON schema。
 
 优先级：
-1. 内容形态决定 type（表格→comparison，代码→code，图片→diagram）
+1. 内容形态决定 type（表格→comparison，代码→code，图片→diagram，数字→stats，时间序列→timeline）
 2. 信息关系决定 type（并列→cards-grid，递进→flow，论点→key-points）
 3. 同类 type 避免连续出现
 
@@ -128,3 +130,5 @@ python <skill_path>/scripts/build_html.py \
 3. **视觉节奏** — 交替白色/浅灰背景，避免同 type 连续出现
 4. **图片自包含** — 所有图片必须转 base64，确保 HTML 单文件可携带
 5. **不修改源文件** — 只读取 Markdown，不做任何修改
+6. **Dark Mode** — 输出页面自动适配系统暗色偏好，并提供手动切换按钮
+7. **代码高亮** — 代码块 type 需指定 `language` 字段，highlight.js 自动渲染语法高亮

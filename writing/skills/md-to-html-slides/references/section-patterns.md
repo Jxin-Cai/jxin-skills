@@ -203,6 +203,69 @@
 
 ---
 
+## stats — 数字指标
+
+**适用场景**：关键数据展示、KPI 概览、数字对比。适合在文中遇到多个并列数据点时使用。
+
+```json
+{
+  "type": "stats",
+  "label": "SECTION LABEL（可选）",
+  "title": "区块标题（可选）",
+  "items": [
+    {
+      "value": "99.9%",
+      "label": "可用性",
+      "change": "+0.3%",
+      "direction": "up"
+    },
+    {
+      "value": "50ms",
+      "label": "平均延迟",
+      "change": "-20ms",
+      "direction": "down"
+    }
+  ]
+}
+```
+
+- `value`: 大字展示的数值（含单位）
+- `label`: 数值下方说明文字
+- `change`: 变化量（可选）
+- `direction`: `"up"` 绿色 / `"down"` 红色（可选）
+- items 数量建议 2-4 个
+
+---
+
+## timeline — 时间线
+
+**适用场景**：历史回顾、版本迭代、里程碑展示。文中出现按时间排列的事件序列时使用。
+
+```json
+{
+  "type": "timeline",
+  "label": "SECTION LABEL（可选）",
+  "title": "时间线标题",
+  "items": [
+    {
+      "date": "2024 Q1",
+      "title": "事件标题",
+      "description": "简要描述（≤50字）"
+    },
+    {
+      "date": "2024 Q2",
+      "title": "事件标题",
+      "description": "简要描述"
+    }
+  ]
+}
+```
+
+- 桌面端交错布局（左右分布），移动端线性布局
+- items 数量建议 3-8 个
+
+---
+
 ## 选择指导
 
 | Markdown 原始内容 | 推荐 section type |
@@ -216,5 +279,7 @@
 | 代码块 | `code` |
 | 图片引用 | `diagram` |
 | 引用块（>） | `quote` |
+| 并列数字/KPI/指标 | `stats` |
+| 按时间排列的事件 | `timeline` |
 | 最后一个总结性 H2 | `cta` |
 | 长段落（>100字） | 提炼为 `key-points`（≤3 条） |
