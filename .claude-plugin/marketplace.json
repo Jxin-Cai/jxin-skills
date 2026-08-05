@@ -21,8 +21,8 @@
     {
       "name": "jxin-writing",
       "source": "./writing",
-      "description": "Creative toolkit: tech article writing, PPT storyboard, image generation, resume crafting, and markdown publishing",
-      "version": "1.2.0",
+      "description": "Creative toolkit: tech article writing, PPT storyboard, HTML slides, image generation, resume crafting, and markdown publishing",
+      "version": "1.3.0",
       "homepage": "https://github.com/Jxin-Cai/jxin-skills",
       "repository": "https://github.com/Jxin-Cai/jxin-skills",
       "author": {
